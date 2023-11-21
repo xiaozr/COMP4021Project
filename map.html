@@ -60,14 +60,15 @@
     <script>
         const table = document.getElementById('grid');
         const size = 15; // size of the grid 15x15
+        // Calculate the width and height of each cell
+        //const cellSize = tableWidth / size;
+        const cellSize = 80;
+        // TODO: replace the const
+        const player = 2;
 
         function adjustCellSize() {
             // Get the width of the table
             const tableWidth = table.offsetWidth;
-
-            // Calculate the width and height of each cell
-            //const cellSize = tableWidth / size;
-            const cellSize = 80;
 
             // Apply the width and height to each cell
             const cells = table.getElementsByTagName('td');
@@ -76,15 +77,50 @@
                 cells[i].style.height = `${cellSize}px`;
             }
         }
+        
+        // create svg for a cell
+        function createSVGWithImage(imagePath) {
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('width', `${cellSize}px`);
+            svg.setAttribute('height', `${cellSize}px`);
+
+            const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+            image.setAttribute('width', `${cellSize}px`);
+            image.setAttribute('height', `${cellSize}px`);        
+            image.setAttribute('href', imagePath);
+
+            svg.appendChild(image);
+            return svg;
+        }
 
         // Generate the grid
         for (let i = 0; i < size; i++) {
             const row = document.createElement('tr');
             for (let j = 0; j < size; j++) {
                 const cell = document.createElement('td');
+                if(Math.random() < 0.5) {
+                    const svg = createSVGWithImage('imgs/mountain.svg');
+                    cell.appendChild(svg);
+                    cell.dataset.hasMountain = true;
+                }
                 row.appendChild(cell);
             }
             table.appendChild(row);
+        }
+
+        // Draw general for each player
+        for (let i = 1; i<=player; i++) {
+            var x, y;
+            while(true) {
+                x = Math.floor(Math.random() * size);
+                y = Math.floor(Math.random() * size);
+                print(x, y);
+                if(!table.rows[x].cells[y].dataset.hasMountain) break;
+            }
+            table.rows[x].cells[y].appendChild(createSVGWithImage('imgs/general.svg'));
+            // TODO: assign random color to players and record the color
+            table.rows[x].cells[y].style.backgroundColor = 'red';
+            table.rows[x].cells[y].dataset.playerID = i;
         }
 
         // Adjust cell size initially and whenever the window resizes
