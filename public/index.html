@@ -17,6 +17,11 @@
         td {
             border: 2px solid black;
             background-color: #fff;
+            width: 80px;
+            height: 80px;
+            text-align: center;
+            vertical-align: middle;
+            position: relative;
         }
         /* Styles for the score board */
         #scoreBoard {
@@ -27,6 +32,16 @@
 
             height: 100px; 
             font-size: 40px; 
+            z-index: 100;
+        }
+
+        .grid-number {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            visibility: hidden;
+            color: #eee;
         }
 
     </style>
@@ -57,88 +72,98 @@
 
     <table id="grid"></table>
 
+    <script src="/socket.io/socket.io.min.js"></script>
+    <script src="scripts/ui.js"></script>
+
     <script>
-        const table = document.getElementById('grid');
-        const size = 15; // size of the grid 15x15
-        // Calculate the width and height of each cell
-        //const cellSize = tableWidth / size;
-        const cellSize = 80;
-        // TODO: replace the const
-        const player = 2;
-
-        function adjustCellSize() {
-            // Get the width of the table
-            const tableWidth = table.offsetWidth;
-
-            // Apply the width and height to each cell
-            const cells = table.getElementsByTagName('td');
-            for (let i = 0; i < cells.length; i++) {
-                cells[i].style.width = `${cellSize}px`;
-                cells[i].style.height = `${cellSize}px`;
-            }
-        }
+        document.addEventListener("DOMContentLoaded", function() {
+            start();
+        })
+        // Get the table element
         
-        // create svg for a cell
-        function createSVGWithImage(imagePath) {
-            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-            svg.setAttribute('width', `${cellSize}px`);
-            svg.setAttribute('height', `${cellSize}px`);
 
-            const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
-            image.setAttribute('width', `${cellSize}px`);
-            image.setAttribute('height', `${cellSize}px`);        
-            image.setAttribute('href', imagePath);
+        // // create svg for a cell
+        // function createSVGWithImage(imagePath) {
+        //     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        //     svg.setAttribute('width', `${cellSize}px`);
+        //     svg.setAttribute('height', `${cellSize}px`);
+        //     // svg.setAttribute('href', imagePath);
 
-            svg.appendChild(image);
-            return svg;
-        }
+        //     const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+        //     image.setAttribute('width', `${cellSize}px`);
+        //     image.setAttribute('height', `${cellSize}px`);        
+        //     image.setAttribute('href', imagePath);
 
-        // Generate the grid
-        for (let i = 0; i < size; i++) {
-            const row = document.createElement('tr');
-            for (let j = 0; j < size; j++) {
-                const cell = document.createElement('td');
-                if(Math.random() < 0.5) {
-                    const svg = createSVGWithImage('imgs/mountain.svg');
-                    cell.appendChild(svg);
-                    cell.dataset.hasMountain = true;
-                }
-                row.appendChild(cell);
-            }
-            table.appendChild(row);
-        }
+        //     svg.appendChild(image);
+        //     return svg;
+        // }
 
-        // Draw general for each player
-        for (let i = 1; i<=player; i++) {
-            var x, y;
-            while(true) {
-                x = Math.floor(Math.random() * size);
-                y = Math.floor(Math.random() * size);
-                print(x, y);
-                if(!table.rows[x].cells[y].dataset.hasMountain) break;
-            }
-            table.rows[x].cells[y].appendChild(createSVGWithImage('imgs/general.svg'));
-            // TODO: assign random color to players and record the color
-            table.rows[x].cells[y].style.backgroundColor = 'red';
-            table.rows[x].cells[y].dataset.playerID = i;
-        }
+        // const table = document.getElementById('grid');
+        // const size = 15; // size of the grid 15x15
+        // // Calculate the width and height of each cell
+        // //const cellSize = tableWidth / size;
+        // const cellSize = 80;
+        // // TODO: replace the const
+        // const player = 2;
 
-        // Adjust cell size initially and whenever the window resizes
-        adjustCellSize();
-        window.onresize = adjustCellSize;
+        // function adjustCellSize() {
+        //     // Get the width of the table
+        //     const tableWidth = table.offsetWidth;
 
-        // Change the background color of a specific cell
-        // This will change the color of the cell at row 2, column 3 (zero-based indexing)
-        const row = 2;
-        const column = 3;
-        const cellToChange = table.rows[row].cells[column];
-        cellToChange.style.backgroundColor = 'red';
+        //     // Apply the width and height to each cell
+        //     const cells = table.getElementsByTagName('td');
+        //     for (let i = 0; i < cells.length; i++) {
+        //         cells[i].style.width = `${cellSize}px`;
+        //         cells[i].style.height = `${cellSize}px`;
+        //     }
+        // }
+
+        // // Generate the grid
+        // for (let i = 0; i < size; i++) {
+        //     const row = document.createElement('tr');
+        //     for (let j = 0; j < size; j++) {
+        //         const cell = document.createElement('td');
+        //         if(Math.random() < 0.5) {
+        //             const svg = createSVGWithImage('imgs/mountain.svg');
+        //             cell.appendChild(svg);
+        //             cell.dataset.hasMountain = true;
+        //         }
+        //         row.appendChild(cell);
+        //     }
+        //     table.appendChild(row);
+        // }
+
+        // // Draw general for each player
+        // for (let i = 1; i<=player; i++) {
+        //     var x, y;
+        //     while(true) {
+        //         x = Math.floor(Math.random() * size);
+        //         y = Math.floor(Math.random() * size);
+        //         print(x, y);
+        //         if(!table.rows[x].cells[y].dataset.hasMountain) break;
+        //     }
+        //     table.rows[x].cells[y].appendChild(createSVGWithImage('imgs/general.svg'));
+        //     // TODO: assign random color to players and record the color
+        //     table.rows[x].cells[y].style.backgroundColor = 'red';
+        //     table.rows[x].cells[y].dataset.playerID = i;
+        // }
+
+        // // Adjust cell size initially and whenever the window resizes
+        // adjustCellSize();
+        // window.onresize = adjustCellSize;
+
+        // // Change the background color of a specific cell
+        // // This will change the color of the cell at row 2, column 3 (zero-based indexing)
+        // const row = 2;
+        // const column = 3;
+        // const cellToChange = table.rows[row].cells[column];
+        // cellToChange.style.backgroundColor = 'red';
 
 
-        const row2 = 5;
-        const column2 = 6;
-        const cellToChange2 = table.rows[row2].cells[column2];
-        cellToChange2.style.backgroundColor = 'blue';
+        // const row2 = 5;
+        // const column2 = 6;
+        // const cellToChange2 = table.rows[row2].cells[column2];
+        // cellToChange2.style.backgroundColor = 'blue';
 
 
     </script>
