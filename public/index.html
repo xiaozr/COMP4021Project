@@ -14,7 +14,7 @@
             table-layout: fixed;
             border-collapse: collapse;
         }
-        td {
+        .cell {
             border: 2px solid black;
             background-color: #fff;
             width: 80px;
@@ -70,7 +70,7 @@
         </tr>
     </table>
 
-    <table id="grid"></table>
+    <table id="gameMap"></table>
 
     <script src="/socket.io/socket.io.min.js"></script>
     <script src="scripts/ui.js"></script>
@@ -135,7 +135,7 @@
 
         // // Draw general for each player
         // for (let i = 1; i<=player; i++) {
-        //     var x, y;
+        //     let x, y;
         //     while(true) {
         //         x = Math.floor(Math.random() * size);
         //         y = Math.floor(Math.random() * size);
