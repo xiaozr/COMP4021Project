@@ -5,7 +5,7 @@ const MapValueEnum = {
 	GENERAL: '$',
 	CITY: '#'
 };
-const unitGrowthRatio = 10;
+const unitGrowthRatioLow = 20, unitGrowthRatioHigh = 2;
 
 function GameMap(rowsCnt, colsCnt, playerList){
 	// private functions
@@ -44,9 +44,9 @@ function GameMap(rowsCnt, colsCnt, playerList){
 		for(let i = 0;i < rowsCnt;i ++)
 			for(let j = 0;j < colsCnt;j ++){
 				if(playerMap[i][j]){
-					if(staticMap[i][j] == MapValueEnum.GENERAL || staticMap[i][j] == MapValueEnum.CITY)
+					if(gameTick % unitGrowthRatioHigh == 0 && (staticMap[i][j] == MapValueEnum.GENERAL || staticMap[i][j] == MapValueEnum.CITY))
 						unitsMap[i][j] ++;
-					else if(gameTick % unitGrowthRatio == 0 && staticMap[i][j] == MapValueEnum.EMPTY)
+					else if(gameTick % unitGrowthRatioLow == 0 && staticMap[i][j] == MapValueEnum.EMPTY)
 						unitsMap[i][j] ++;
 				}
 			}
@@ -119,7 +119,11 @@ function GameMap(rowsCnt, colsCnt, playerList){
 		})
 	}
 
-	return {gameTick, toPayload, growUnits, moveUnits};
+	function checkCell(playerID, r, c){
+		return playerMap[r][c] == playerID;
+	}
+
+	return {gameTick, toPayload, growUnits, moveUnits, checkCell};
 }
 
-module.exports = {GameMap}
+module.exports = {GameMap};
