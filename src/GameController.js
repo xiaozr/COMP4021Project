@@ -1,5 +1,6 @@
 const gameMapConstructor = require('./GameMap');
 const updatePeriod = 500;
+const sound = require('sound-play')
 
 function makeLoop(period, body){
 	let timer;
@@ -35,7 +36,12 @@ function GameController(io){
 				}
 				console.log("player " + playerID + " moving (" + r1 + ", " + c1 + ")");
 				let result = gameMap.moveUnits(r1, c1, dir, rate);
-				if(result != 0)
+				if(result==0)
+					sound.play('public/audios/move.wav');
+				else if (result<0)
+					sound.play('public/audios/move_error.wav');
+				if(result > 0)
+				sound.play('public/audios/win.wav');
 					io.emit("player killed", result);
 			}
 		}

@@ -79,11 +79,11 @@ function GameMap(rowsCnt, colsCnt, playerList){
 		if(!(r2 >= 0 && r2 < rowsCnt && c2 >= 0 && c2 < colsCnt &&
 			staticMap[r2][c2] != MapValueEnum.MOUNTAIN)){
 			console.log("move rejected: unitsmap=" + unitsMap[r1][c1]);
-			return 0;
+			return -1;
 		}
 		let amount = Math.ceil((unitsMap[r1][c1]-1)*rate);
 		if(amount <= 0)
-			return 0; 
+			return -1; 
 		unitsMap[r1][c1] -= amount;
 		
 		if(playerMap[r2][c2] == playerMap[r1][c1]) {	//moving inside player's land
@@ -95,7 +95,7 @@ function GameMap(rowsCnt, colsCnt, playerList){
 		
 		if(unitsMap[r2][c2] < 0) {					//occupation not succeed
 			unitsMap[r2][c2] = -unitsMap[r2][c2];
-			return 0;
+			return -1;
 		}
 
 		if(staticMap[r2][c2] == MapValueEnum.GENERAL){
