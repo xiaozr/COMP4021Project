@@ -9,7 +9,12 @@ const PlayerID_to_Color = {
 	0 : null,
 	1 : "red",
 	2 : "blue",
-	3 : "green"
+	3 : "green",
+	4 : "brown",
+	5 : "yellow",
+	6 : "Coral",
+	7 : "GreenYellow",
+	8 : "OliveDrab"
 }
 
 let selectedCell;

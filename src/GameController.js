@@ -17,8 +17,7 @@ function GameController(io){
 	let gameMap;
 	let playerList = new Map();
 	let playerOperationBuffer = new Map();
-	let playerIDPool = [1,2,3];
-	let rowCnt = 5, colCnt = 5;
+	let playerIDPool = [1,2,3,4,5,6,7,8];
 	let mainTimer, gameEndTimeout;
 
 	function gameIteration(){
@@ -76,7 +75,7 @@ function GameController(io){
 		console.log("map initialized at " + new Date().toLocaleString());
 
 		// gameMap = gameMapConstructor.GameMap(rowCnt, colCnt, Array.from(playerList.values()));
-		gameMap = gameMapConstructor.GameMap(rowCnt, colCnt, [1,2,3]);
+		gameMap = gameMapConstructor.GameMap([1,2,3,4,5,6,7,8]);
 
 		io.emit("init map", gameMap.toPayload());
 

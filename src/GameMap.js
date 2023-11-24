@@ -3,39 +3,90 @@ const MapValueEnum = {
 	EMPTY: '.',
 	MOUNTAIN: '*',
 	GENERAL: '$',
-	CITY: '#'
+	CITY: '#',
+	UNKNOWN: ' '
 };
 const unitGrowthRatioLow = 20, unitGrowthRatioHigh = 2;
 
-function GameMap(rowsCnt, colsCnt, playerList){
+function GameMap(playerList){
 	// private functions
-	function fillRandomEmptyCell(map, value){
+	function fillRandomEmptyCell(map, empty, value){
 		let x, y;
 		do{
 			x = Math.floor(Math.random() * rowsCnt);
 			y = Math.floor(Math.random() * colsCnt);
-		} while(map[x][y] != MapValueEnum.EMPTY);
+		} while(map[x][y] != empty);
 		map[x][y] = value;
 		return {x, y};
 	}
 
 	// letiables & initialization
 
-	const staticMap = utils.generateMatrix(rowsCnt, colsCnt, MapValueEnum.EMPTY);
+	const rowsCnt = 4 + playerList.length, colsCnt = 4 + playerList.length; 
+	const staticMap = utils.generateMatrix(rowsCnt, colsCnt, MapValueEnum.UNKNOWN);
 	const unitsMap = utils.generateMatrix(rowsCnt, colsCnt, 0);
 	const playerMap = utils.generateMatrix(rowsCnt, colsCnt, 0);
-	
 	let gameTick = 0;
-	
-	for(let i = 0;i < rowsCnt * colsCnt / 5; i++) {
-		fillRandomEmptyCell(staticMap, MapValueEnum.MOUNTAIN);
-	}
 
-	for(let i = 0;i < playerList.length;i ++) {
-		let {x ,y} = fillRandomEmptyCell(staticMap, MapValueEnum.GENERAL);
-		unitsMap[x][y] = 1;
-		playerMap[x][y] = playerList[i];
+	//generate random map with BSP tree
+	function generateMap(minDistance){
+		function randInt(l, r){
+			return Math.floor(Math.random() * (r-l)) + l;
+		} 
+		function fillPath(stR, stC, edR, edC){
+			const stepR = stR < edR ? 1 : -1;
+			const stepC = stC < edC ? 1 : -1;
+			let crtR = stR, crtC = stC;
+			while(crtR != edR || crtC != edC){
+				if(staticMap[crtR][crtC] == MapValueEnum.UNKNOWN)
+					staticMap[crtR][crtC] = MapValueEnum.EMPTY;
+				if(crtR != edR && crtC != edC){
+					Math.random() < 0.5 ? (crtR += stepR) : (crtC += stepC);
+				}
+				else if(crtR != edR)
+					crtR += stepR;
+				else
+					crtC += stepC;
+			}
+			if(staticMap[crtR][crtC] == MapValueEnum.UNKNOWN)
+				staticMap[crtR][crtC] = MapValueEnum.EMPTY;
+		}
+		
+		let generalsPosition = [];
+		for(let playerID of playerList){
+			let x, y;
+			do {
+				x = randInt(0, rowsCnt);
+				y = randInt(0, colsCnt);
+			}while(!generalsPosition.every(pos => (Math.abs(pos.x - x) + Math.abs(pos.y - y) > minDistance)));
+			generalsPosition.push({x, y});
+			staticMap[x][y] = MapValueEnum.GENERAL;
+			unitsMap[x][y] = 1;
+			playerMap[x][y] = playerID;
+		}
+		
+		console.log("first finished map");
+		console.log(utils.charMatrix2Str(staticMap));
+
+		for(let i = 1; i < generalsPosition.length;i ++){
+			fillPath(generalsPosition[i-1].x, generalsPosition[i-1].y, generalsPosition[i].x, generalsPosition[i].y);
+		}
+		console.log("half finished map");
+		console.log(utils.charMatrix2Str(staticMap));
+
+		for(let i = 0;i < rowsCnt * colsCnt / 5; i++) {
+			fillRandomEmptyCell(staticMap, MapValueEnum.UNKNOWN, MapValueEnum.MOUNTAIN);
+		}
+		for(let i = 0;i < rowsCnt;i ++)
+			for(let j = 0;j < colsCnt; j++)
+				if(staticMap[i][j] == MapValueEnum.UNKNOWN)
+					staticMap[i][j] = MapValueEnum.EMPTY;
+		
+		console.log("finished map");
+		console.log(utils.charMatrix2Str(staticMap));
 	}
+	
+	generateMap(3);
 
 	// public functions
 
