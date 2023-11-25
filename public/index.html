@@ -1,74 +1,82 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <title>Generals Pro</title>
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
     <link href="style.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
 </head>
 <body>
 
     <!-- Score board -->
-    <table id="scoreBoard">
-        <tr>
-            <td>Stars</td>
-            <td>Player</td>
-            <td>Army</td>
-            <td>Land</td>
-        </tr>
-        <tr>
-            <td id="p1Stars">0</td>
-            <td id="p1Name">Player 1</td>
-            <td id="p1Army">0</td>
-            <td id="p1Land">0</td>
-        </tr>
-        <tr>
-            <td id="p2Stars">0</td>
-            <td id="p2Name">Player 2</td>
-            <td id="p2Army">0</td>
-            <td id="p2Land">0</td>
-        </tr>
-    </table>
+    <table id="scoreBoard"></table>
 
+    <!-- GameMap -->
     <table id="gameMap"></table>
+
+    <!-- Signin-overlay -->
+    <div id="signin-overlay" class="overlay row">
+        <div class="content shadow row">
+            <form id="signin-form" class="col">
+                <div class="caption">SIGN IN WITH YOUR ACCOUNT</div>
+                <div class="spacer-0"></div>
+                <input id="signin-username" placeholder="Enter your username"></input>
+                <input id="signin-password" type="password" placeholder="Enter your password"></input>
+                <div class="spacer-0"></div>
+                <button type="submit">Sign In</button>
+                <div id="signin-message" class="warning center"></div>
+                <div class="spacer-grow"></div>
+            </form>
+    
+            <div class="spacer-0"></div>
+    
+            <form id="register-form" class="col">
+                <div class="caption">OR, REGISTER IF YOU DO NOT HAVE ONE</div>
+                <div class="spacer-0"></div>
+                <input id="register-username" maxlength="10" placeholder="Enter your username"></input>
+                <select id="register-avatar">
+                    <option value="">Select your avatar</option>
+                </select>
+                <input id="register-name" maxlength="16" placeholder="Enter your name"></input>
+                <input id="register-password" type="password" placeholder="Enter your password"></input>
+                <input id="register-confirm" type="password" placeholder="Enter your password again"></input>
+                <div class="spacer-0"></div>
+                <button type="submit">Register</button>
+                <div id="register-message" class="warning center"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- TODO: Game End overlay -->
 
     <script src="/socket.io/socket.io.min.js"></script>
     <script src="scripts/ui.js"></script>
-
+    <script src="scripts/registration.js"></script>
+    <script src="scripts/authentication.js"></script>
+    <script src="scripts/avatar.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            start();
+            
+            SignInForm.initialize();
+            
+            Authentication.validate(
+                () => {
+                    SignInForm.hide();
+                    //UserPanel.update(Authentication.getUser());
+                    //UserPanel.show();
+                    // Game starts
+                    start();
+                    
+                },
+                () => { SignInForm.show(); }
+            );
+
+        
         })
-            </script>
+    </script>
 
-<div id="signin-overlay" class="overlay row">
-    <div class="content shadow row">
-        <form id="signin-form" class="col">
-            <div class="caption">SIGN IN WITH YOUR ACCOUNT</div>
-            <div class="spacer-0"></div>
-            <input id="signin-username" placeholder="Enter your username"></input>
-            <input id="signin-password" type="password" placeholder="Enter your password"></input>
-            <div class="spacer-0"></div>
-            <button type="submit">Sign In</button>
-            <div id="signin-message" class="warning center"></div>
-            <div class="spacer-grow"></div>
-        </form>
 
-        <div class="spacer-0"></div>
-
-        <form id="register-form" class="col">
-            <div class="caption">OR, REGISTER IF YOU DO NOT HAVE ONE</div>
-            <div class="spacer-0"></div>
-            <input id="register-username" maxlength="10" placeholder="Enter your username"></input>
-            <select id="register-avatar">
-                <option value="">Select your avatar</option>
-            </select>
-            <input id="register-name" maxlength="16" placeholder="Enter your name"></input>
-            <input id="register-password" type="password" placeholder="Enter your password"></input>
-            <input id="register-confirm" type="password" placeholder="Enter your password again"></input>
-            <div class="spacer-0"></div>
-            <button type="submit">Register</button>
-            <div id="register-message" class="warning center"></div>
-        </form>
-    </div>
-</div>
 
 </body>
 </html>

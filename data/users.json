@@ -1,0 +1,27 @@
+{
+  "tony": {
+    "avatar": "Owl",
+    "name": "Tony Lee",
+    "password": "$2b$10$Yxb2fSgA5RFn9Oz9TxjLLuve/GiPXCs2DWVFhyFDr4qz39qglwp8e"
+  },
+  "jacky": {
+    "avatar": "Rabbit",
+    "name": "Jacky Lee",
+    "hash": "$2b$10$5rCtnXURCFBYI7g88zGrnuPOWhXsBNuhimI6zfD/sqZBZEbKJtTKu"
+  },
+  "leo": {
+    "avatar": "Rabbit",
+    "name": "Leo",
+    "hash": "$2b$10$RxfcH5rZgGsTU6rn92naV.8uZrfwW0qxfMBW7acPb/.9.BTei6Z/a"
+  },
+  "steven": {
+    "avatar": "Rabbit",
+    "name": "fds",
+    "hash": "$2b$10$zP3LVvvHXhOZXWmJJ/ixVeNIwtDMBFVm/i.gWkrd8bEdDFFhkbq.C"
+  },
+  "niko": {
+    "avatar": "Bat",
+    "name": "Niko",
+    "hash": "$2b$10$RlFvZ5d5eN/H9Bga0Zd93eHzN8bcSDGQw8CK/vzNWQQIN0gEul81."
+  }
+}
