@@ -19,6 +19,8 @@ const PlayerID_to_Color = {
 
 let selectedCell;
 
+let nameList;
+
 function start(){
 	const socket = io();
 	let rowCnt, colCnt;
@@ -43,9 +45,8 @@ function start(){
 		colCnt = staticMap[0].length;
 
 		initMap(staticMap, unitsMap, playerMap, rowCnt, colCnt, document.getElementById("gameMap")); // Draw Map on front end
-
-		initScoreBoard(document.getElementById("scoreBoard"),[])
     });
+
 
 	socket.on("update map", (gameMapPayload) => {
 		({staticMap, unitsMap, playerMap, gameTick} = JSON.parse(gameMapPayload));
@@ -59,14 +60,21 @@ function start(){
 		updateMap(staticMap, unitsMap, playerMap, rowCnt, colCnt);
 	})
 
+	socket.on("init score",playerList => {
+		nameList = playerList;
+		initScoreBoard(document.getElementById("scoreBoard"),nameList)
+		
+	})
+
+	socket.on("update score",(gameMapPayload) =>{
+
+		const {unitsMap, playerMap} = JSON.parse(gameMapPayload);
+		updateScoreBoard(document.getElementById("scoreBoard"),unitsMap,playerMap,rowCnt,colCnt);
+	})
+
 	socket.on("player killed", payload => {
 		killedID = parseInt(payload);
 		console.log(killedID + "get killed");
-	})
-
-	socket.on("final playerList",playerList => {
-
-		
 	})
 
 	document.addEventListener("keydown", event => {
@@ -152,7 +160,7 @@ function updateMap(staticMap, unitsMap, playerMap, rowCnt, colCnt) {
 		}
 }
 
-function initScoreBoard(table,playerList){
+function initScoreBoard(table,players){
 
 	// Create headers
 	var headers = ["Player", "Army", "Land"];
@@ -161,6 +169,9 @@ function initScoreBoard(table,playerList){
 	headers.forEach(function(header) {
 		var th = document.createElement("th");
 		th.textContent = header;
+		th.style.color = "white"
+		th.style.backgroundColor = "black";
+		th.style.padding = "10px";
 		tr.appendChild(th);
 	});
 
@@ -168,78 +179,70 @@ function initScoreBoard(table,playerList){
 
 	// Create data rows
 	//TODO:var players = playerList
-	var players = ["p1","p2","p3"]
+	//var players = ["p1","p2","p3"]
+	//console.log(players);
+
+	let count = 1;
 
 	players.forEach(function(player) {
 		var tr = document.createElement("tr");
 	  
-		headers.forEach(function(header) {
-		  var td = document.createElement("td");
-		  td.id = player + header.charAt(0).toUpperCase() + header.slice(1);
-		  td.textContent = header === "Player" ? player.replace("p", "Player ") : "0";
-		  tr.appendChild(td);
-		});
-	  
-		table.appendChild(tr);
-	  });
-	  
-}
-
-function updateScoreBoard(table,unitsMap,playerMap,playerList){
-    
-	// Clear previous data
-	while (table.firstChild) {
-		table.removeChild(table.firstChild);
-	}
-
-	// Create headers
-	var headers = ["Player", "Army", "Land"];
-	var tr = document.createElement("tr");
-
-	headers.forEach(function(header) {
-		var th = document.createElement("th");
-		th.textContent = header;
-		tr.appendChild(th);
-	});
-
-	table.appendChild(tr);
-
-	// Update data rows
-	//TODO:var players = playerList
-	var players = ["p1","p2","p3"]
-
-	players.forEach(function(player) {
-		var tr = document.createElement("tr");
-		
 		headers.forEach(function(header) {
 			var td = document.createElement("td");
-			td.id = player + header.charAt(0).toUpperCase() + header.slice(1);
+			td.id = player + header.charAt(0).toUpperCase() + header.slice(1); // "example: tonyArmy, stevenLand"
 
-			switch(header) {
-				case "Stars":
-					td.textContent = unitsMap[player].stars || "0";
-					break;
-				case "Player":
-					td.textContent = player;
-					break;
-				case "Army":
-					td.textContent = unitsMap[player].army || "0";
-					break;
-				case "Land":
-					td.textContent = playerMap[player].land || "0";
-					break;
-				default:
-					td.textContent = "0";
+			if (header === "Player") {
+				td.style.backgroundColor = PlayerID_to_Color[count++]; 
+				td.textContent = player;
+
+			} else {
+				td.textContent = "0";
 			}
-			
+			td.style.border = "1px solid black";
+			td.style.textAlign = "center";
+			td.style.fontWeight = "bold"; // Makes the text bold
+			td.style.fontStyle = "italic"; // Makes the text italic
+			td.style.padding = "10px"; // Add padding to all sides
 			tr.appendChild(td);
 		});
-		
+	  
 		table.appendChild(tr);
 	});
 
-	// Append to body or other container
-	//document.body.appendChild(table);
+	table.style.borderCollapse = 'collapse';
+
+  
+}
+
+function updateScoreBoard(table,unitsMap,playerMap,rowCnt,colCnt){
+    // Initialize a dictionary to hold the scores
+    let scores = {};
+
+    // Iterate over the maps
+    for(let i = 0; i < rowCnt; i++) {
+        for(let j = 0; j < colCnt; j++) {
+            // If a player is present at this cell
+            if(playerMap[i][j] !== 0) {
+                // If this player is not already in the scores dictionary, add them
+                if(!(playerMap[i][j] in scores)) {
+                    scores[playerMap[i][j]] = {army: 0, land: 0};
+                }
+
+                // Add the land score
+                scores[playerMap[i][j]].land += 1;
+                
+                // Add the army score
+                scores[playerMap[i][j]].army += unitsMap[i][j];
+            }
+        }
+    }
+
+    // Iterate over the players in the scores dictionary
+    for(let player in scores) {
+        // Update their score in the table
+        document.getElementById(`${nameList[player - 1]}Army`).innerText = scores[player].army;
+        document.getElementById(`${nameList[player - 1]}Land`).innerText = scores[player].land;
+    }    
 }
 
 

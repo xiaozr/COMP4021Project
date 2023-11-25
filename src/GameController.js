@@ -40,6 +40,7 @@ function GameController(io){
 		}
 
 		io.emit("update map", gameMap.toPayload());
+		io.emit("update score", gameMap.toPayload());
 	}
 
 	function isStarted(){
@@ -58,6 +59,7 @@ function GameController(io){
 
 		if(isStarted()){
 			socket.emit("init map", gameMap.toPayload());
+			socket.emit("init score",Array.from(playerList.keys()));
 		}
 		return true;
 	}
@@ -81,6 +83,7 @@ function GameController(io){
 		//gameMap = gameMapConstructor.GameMap([1,2,3,4,5,6,7,8]);
 
 		io.emit("init map", gameMap.toPayload());
+		io.emit("init score",Array.from(playerList.keys()));
 
 		const updatePeriod = 500; 
 		mainTimer = makeLoop(updatePeriod, gameIteration); // Update game every 0.5 seconds

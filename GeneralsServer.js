@@ -44,15 +44,15 @@ con.io.on("connection", socket => {
 		}
 		// else
 		// 	gameController.startGame();
-		else if (gameController.getPlayerList().size>=3) {
+		else if (gameController.getPlayerList().size>=2) {
 
 			gameController.startGame();
-			io.emit("final playerList",gameController.getPlayerList())
+		
 		}
 	});
 
 	socket.on("add operation", payload => {
-const {username} = socket.request.session.user
+		const {username} = socket.request.session.user
 		gameController.addOperation(username, JSON.parse(payload));
 	})
 });
