@@ -1,0 +1,304 @@
+@import url("https://fonts.googleapis.com/css2?family=Abel&display=swap");
+:root {
+    --material-icons-color: black;
+    --field-color: gray;
+    --field-background: white;
+    --field-background-hover: #eee;
+    --input-background: #eee;
+    --overlay-background: rgba(245, 158, 114, 0.8);
+    --overlay-caption-color: white;
+    --overlay-content-background: linear-gradient(white, #fde0c5);
+
+    --header-background: linear-gradient(to right, #eb4a40, #f59e72);
+    --main-panel-background: linear-gradient(white, #fde0c5);
+    --online-users-panel-background: linear-gradient(to right, #fde0c5, #facba6);
+    --chat-panel-background: none;
+
+    --title-color: white;
+    --caption-color: white;
+
+    --font-color: black;
+    --date-color: gray;
+
+    --register-form-background: linear-gradient(#fde0c5, #facba6);
+    --warning-color: white;
+
+    --button-color: white;
+    --button-background: black;
+    --button-background-hover: black;
+}
+* {
+    font-family: "Abel", sans-serif;
+    color: var(--font-color);
+    box-sizing: border-box;
+}
+
+/* Basic */
+body {
+    min-width: 600px;
+    min-height: 300px;
+    height: 100vh;
+    padding: 0;
+    margin: 0;
+}
+.center { text-align: center; }
+.shadow { box-shadow: 0px 0px 10px rgb(0, 0, 0, 0.4); }
+
+/* Google icon */
+.material-icons {
+    color: var(--material-icons-color);
+}
+
+/* Flexbox related */
+.row, .col {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 20px;
+}
+.col { flex-direction: column; }
+.spacer-0 { width: 0; height: 0; }
+.spacer-1 { width: 5px; height: 5px; }
+.spacer-2 { width: 10px; height: 10px; }
+.spacer-grow { flex-grow: 1; }
+
+/* Overlay */
+.overlay {
+    position: fixed;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(to bottom, #000000, #ffffff);
+}
+.overlay .caption {
+    font-size: 120%;
+    color: var(--overlay-caption-color);
+}
+.overlay .content {
+    background: var(--overlay-content-background);
+}
+.warning {
+    font-weight: bold;
+    color: var(--warning-color);
+}
+
+/* Form related */
+form input, form select {
+    width: 100%;
+}
+input, select {
+    font-size: 1rem;
+    background: var(--input-background);
+    border: none;
+    border-radius: 20px;
+    padding: 10px 15px;
+}
+input::placeholder, select {
+    color: gray;
+}
+button {
+    font-weight: bold;
+    height: 40px;
+    border: 1px solid black;
+    color: var(--button-color);
+    background: var(--button-background);
+    box-shadow: 2px 2px 2px rgb(0, 0, 0, 0.4);
+    padding: 0 20px;
+    transition: 1s background;
+    cursor: pointer;
+}
+button:hover {
+    background: var(--button-background-hover);
+}
+button:active {
+    margin: 2px -2px -2px 2px;
+    box-shadow: 0px 0px;
+}
+button.icon {
+    height: inherit;
+    border: none;
+    border-radius: 2px;
+    background: none;
+    box-shadow: none;
+    padding: 3px 5px;
+    padding-top: 5px;
+}
+button.icon * {
+    color: white;
+}
+button.icon:hover {
+    background: var(--button-background-hover);
+}
+button.icon:active {
+    margin: 2px -2px -2px 2px;
+}
+
+/* Data field caption and content */
+.field-content {
+    border-radius: 50px;
+    padding: 10px 15px;
+    background: var(--field-background);
+    transition: 1s background;
+}
+.field-content * {
+    color: var(--field-color);
+}
+.field-content:hover {
+    background: var(--field-background-hover);
+}
+.user-name {
+    white-space: nowrap;
+}
+
+/* Top level container */
+#container {
+    align-items: stretch;
+    gap: 0px;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+}
+
+/* Header */
+#header {
+    height: 80px;
+    background: var(--header-background);
+    padding: 0 20px;
+}
+#title {
+    font-family: Abel, sans-serif;
+    font-size: 300%;
+    text-transform: uppercase;
+    color: var(--title-color);
+    user-select: none;
+}
+#title .material-icons {
+    color: var(--title-color);
+    font-size: 36px;
+}
+#user-panel {
+    padding: 0;
+}
+#signin-user {
+    cursor: pointer;
+}
+
+/* Main panel */
+#main-panel {
+    height: calc(100% - 80px);
+    background: var(--main-panel-background);
+}
+
+/* Chat area */
+#chat-panel {
+    flex-grow: 1;
+    align-items: stretch;
+    height: 100%;
+    background: var(--chat-panel-background);
+    padding: 0;
+}
+#chat-area {
+    height: 100%;
+    align-items: flex-start;
+    justify-content: start;
+    gap: 20px;
+    overflow-y: auto;
+    padding: 10px;
+}
+.chat-message-panel {
+    align-items: flex-start;
+    padding: 0;
+}
+.chat-message {
+    align-items: start;
+    gap: 5px;
+    padding: 0;
+}
+.chat-date {
+    font-size: 75%;
+    color: var(--date-color);
+}
+
+/* Online users panel */
+#online-users-panel {
+	flex: 0 0 250px;
+    height: 100%;
+    padding: 0;
+    background: var(--online-users-panel-background);
+}
+#online-users-area {
+    flex-grow: 1;
+    width: 100%;
+    align-items: flex-start;
+    justify-content: start;
+    overflow-y: auto;
+}
+
+/* Signin overlay */
+#signin-form {
+    color: white;
+    width: 270px;
+    align-self: stretch;
+    background: linear-gradient(to bottom, #4F6AC7, #00C6FB);
+    border-radius: 10px;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+}
+#register-form {
+    width: 380px;
+    background: linear-gradient(to bottom, #ff2424, #fd5202);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+}
+
+/* Edit user overlay */
+#edit-user-form {
+    width: 270px;
+    align-self: stretch;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background:linear-gradient(to bottom, #000000, #ffffff);
+}
+table {
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+.cell {
+    border: 2px solid black;
+    background-color: #fff;
+    width: 80px;
+    height: 80px;
+    text-align: center;
+    vertical-align: middle;
+    position: relative;
+}
+
+/* Styles for the score board */
+#scoreBoard {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #eee;
+    height: 50px; 
+    font-size: 25px; 
+    z-index: 100;
+    border: 2px solid #333;
+    padding: 10px;
+    border-radius: 5px;
+    border-spacing: 10px;
+}
+
+.grid-number {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    visibility: hidden;
+    color: #eee;
+}

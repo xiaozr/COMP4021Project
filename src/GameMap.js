@@ -21,18 +21,18 @@ function GameMap(playerList){
 	}
 
 	// letiables & initialization
-
-	const rowsCnt = 4 + playerList.length, colsCnt = 4 + playerList.length; 
+	const rowsCnt = 4 + playerList.length, colsCnt = 4 + playerList.length;
 	const staticMap = utils.generateMatrix(rowsCnt, colsCnt, MapValueEnum.UNKNOWN);
 	const unitsMap = utils.generateMatrix(rowsCnt, colsCnt, 0);
 	const playerMap = utils.generateMatrix(rowsCnt, colsCnt, 0);
 	let gameTick = 0;
-
-	//generate random map with BSP tree
+	
+	//generate random map: ensuring generals are all connected.
 	function generateMap(minDistance){
 		function randInt(l, r){
 			return Math.floor(Math.random() * (r-l)) + l;
 		} 
+		// fill a Path from (stR, stC) to (edR, edC) with EMPTY cell
 		function fillPath(stR, stC, edR, edC){
 			const stepR = stR < edR ? 1 : -1;
 			const stepC = stC < edC ? 1 : -1;
@@ -51,7 +51,9 @@ function GameMap(playerList){
 			if(staticMap[crtR][crtC] == MapValueEnum.UNKNOWN)
 				staticMap[crtR][crtC] = MapValueEnum.EMPTY;
 		}
-		
+
+		// randomly generate position of generals, 
+		// ensuring the Manhattan distance between any two generals are greater than minDistance
 		let generalsPosition = [];
 		for(let playerID of playerList){
 			let x, y;
@@ -64,26 +66,22 @@ function GameMap(playerList){
 			unitsMap[x][y] = 1;
 			playerMap[x][y] = playerID;
 		}
-		
-		console.log("first finished map");
-		console.log(utils.charMatrix2Str(staticMap));
 
+		// connect the generals together
 		for(let i = 1; i < generalsPosition.length;i ++){
 			fillPath(generalsPosition[i-1].x, generalsPosition[i-1].y, generalsPosition[i].x, generalsPosition[i].y);
 		}
-		console.log("half finished map");
-		console.log(utils.charMatrix2Str(staticMap));
 
+		// generate montains on not-decided-cells
 		for(let i = 0;i < rowsCnt * colsCnt / 5; i++) {
 			fillRandomEmptyCell(staticMap, MapValueEnum.UNKNOWN, MapValueEnum.MOUNTAIN);
 		}
+
+		// fill the rest of the map with empty cell
 		for(let i = 0;i < rowsCnt;i ++)
 			for(let j = 0;j < colsCnt; j++)
 				if(staticMap[i][j] == MapValueEnum.UNKNOWN)
 					staticMap[i][j] = MapValueEnum.EMPTY;
-		
-		console.log("finished map");
-		console.log(utils.charMatrix2Str(staticMap));
 	}
 	
 	generateMap(3);
@@ -95,10 +93,11 @@ function GameMap(playerList){
 		for(let i = 0;i < rowsCnt;i ++)
 			for(let j = 0;j < colsCnt;j ++){
 				if(playerMap[i][j]){
-					if(gameTick % unitGrowthRatioHigh == 0 && (staticMap[i][j] == MapValueEnum.GENERAL || staticMap[i][j] == MapValueEnum.CITY))
+					if(gameTick % unitGrowthRatioHigh == 0 && // General, City: (1unit/second)
+						(staticMap[i][j] == MapValueEnum.GENERAL || staticMap[i][j] == MapValueEnum.CITY))
 						unitsMap[i][j] ++;
 					else if(gameTick % unitGrowthRatioLow == 0 && staticMap[i][j] == MapValueEnum.EMPTY)
-						unitsMap[i][j] ++;
+						unitsMap[i][j] ++; // Normal: 1unit/10second
 				}
 			}
 	}
@@ -112,8 +111,7 @@ function GameMap(playerList){
 	}
 
 	/**
-	 * 
-	 * @param {Number} r1 row of source cell
+	 	 * @param {Number} r1 row of source cell
 	 * @param {Number} c1 column of source cell
 	 * @param {Number} dir direction of movement, either 1,2,3,4
 	 * @param {Number} rate rate of units moved.
@@ -132,10 +130,11 @@ function GameMap(playerList){
 			console.log("move rejected: unitsmap=" + unitsMap[r1][c1]);
 			return 0;
 		}
-		let amount = Math.ceil((unitsMap[r1][c1]-1)*rate);
-		if(amount <= 0)
+		let amount = Math.ceil((unitsMap[r1][c1]-1)*rate); // Moving unit amount
+		if(amount <= 0) // Unit=1 cell
 			return 0; 
-		unitsMap[r1][c1] -= amount;
+		
+		unitsMap[r1][c1] -= amount; // Decrease units from original cell
 		
 		if(playerMap[r2][c2] == playerMap[r1][c1]) {	//moving inside player's land
 			unitsMap[r2][c2] += amount;
