@@ -128,7 +128,7 @@ function GameMap(playerList){
 		if(!(r2 >= 0 && r2 < rowsCnt && c2 >= 0 && c2 < colsCnt &&
 			staticMap[r2][c2] != MapValueEnum.MOUNTAIN)){
 			console.log("move rejected: unitsmap=" + unitsMap[r1][c1]);
-			return 0;
+			return -1;
 		}
 		let amount = Math.ceil((unitsMap[r1][c1]-1)*rate); // Moving unit amount
 		if(amount <= 0) // Unit=1 cell
@@ -145,7 +145,7 @@ function GameMap(playerList){
 		
 		if(unitsMap[r2][c2] < 0) {					//occupation not succeed
 			unitsMap[r2][c2] = -unitsMap[r2][c2];
-			return 0;
+			return -1;
 		}
 
 		if(staticMap[r2][c2] == MapValueEnum.GENERAL){
