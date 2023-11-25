@@ -24,6 +24,8 @@ function createWebSocketConnection(){
 	});
 	app.use(gameSession);
 
+
+
 	const { createServer } = require("http");
 	const { Server } = require("socket.io");
 	const httpServer = createServer(app);
@@ -33,7 +35,7 @@ function createWebSocketConnection(){
 		gameSession(socket.request, {}, next);
 	});
 
-	return {io, httpServer, app};
+	return {io, httpServer, app, fs, bcrypt};
 }
 
 module.exports = { createWebSocketConnection };
