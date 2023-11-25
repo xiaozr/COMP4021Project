@@ -1,5 +1,4 @@
 const gameMapConstructor = require('./GameMap');
-const updatePeriod = 500;
 
 function makeLoop(period, body){
 	let timer;
@@ -40,6 +39,7 @@ function GameController(io){
 		}
 
 		io.emit("update map", gameMap.toPayload());
+		io.emit("update score", gameMap.toPayload());
 	}
 
 	function isStarted(){
@@ -53,9 +53,12 @@ function GameController(io){
 		const userPlayerID = playerIDPool.shift();
 		playerList.set(username, userPlayerID);
 		playerOperationBuffer.set(userPlayerID, []);
-		console.log("add " + username + "as player " + userPlayerID);
+		console.log("add " + username + " as player " + userPlayerID);
+		console.log("Joined Game users: ["+ [...playerList.keys()] +"]");
+
 		if(isStarted()){
 			socket.emit("init map", gameMap.toPayload());
+			socket.emit("init score",Array.from(playerList.keys()));
 		}
 		return true;
 	}
@@ -65,7 +68,7 @@ function GameController(io){
 		playerIDPool.push(userPlayerID);
 		playerOperationBuffer.delete(userPlayerID);
 		playerList.delete(username);
-		console.log("remove " + username + "as player " + userPlayerID);
+		console.log("remove " + username + " as player " + userPlayerID);
 	}
 
 	function startGame(){
@@ -74,15 +77,18 @@ function GameController(io){
 
 		console.log("map initialized at " + new Date().toLocaleString());
 
-		// gameMap = gameMapConstructor.GameMap(rowCnt, colCnt, Array.from(playerList.values()));
-		gameMap = gameMapConstructor.GameMap([1,2,3,4,5,6,7,8]);
+		gameMap = gameMapConstructor.GameMap(Array.from(playerList.values()));
+		//gameMap = gameMapConstructor.GameMap(rowCnt, colCnt, [1,2,3]);
+		//gameMap = gameMapConstructor.GameMap([1,2,3,4,5,6,7,8]);
 
 		io.emit("init map", gameMap.toPayload());
+		io.emit("init score",Array.from(playerList.keys()));
 
-		mainTimer = makeLoop(updatePeriod, gameIteration);
+		const updatePeriod = 500; 
+		mainTimer = makeLoop(updatePeriod, gameIteration); // Update game every 0.5 seconds
 
 		mainTimer.start();
-		gameEndTimeout = setTimeout(endGame, 300000);
+		gameEndTimeout = setTimeout(endGame, 300000); // Game Time Limit: 5 minutes
 		return true;
 	}
 
@@ -103,7 +109,11 @@ function GameController(io){
 		playerOperationBuffer.get(playerList.get(username)).length = 0;
 	}
 
-	return {isStarted, addUser, removeUser, startGame, endGame, addOperation, clearOperationBuffer};
+	function getPlayerList(){
+		return playerList;
+	}
+
+	return {isStarted, addUser, removeUser, startGame, endGame, addOperation, clearOperationBuffer,getPlayerList};
 }
 
 module.exports = {GameController};
