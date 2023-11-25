@@ -51,7 +51,7 @@ function initMap(staticMap, unitsMap, playerMap, rowCnt, colCnt, table){
 				console.log(selectedCell);
 			}
 			cell.ondblclick = () => {
-				selectedCell = {r: i, c: j, rate: 0.5};
+				selectedCell = {r: i, c: j, rate: 1};
 				console.log(selectedCell);
 			}
 			row.appendChild(cell);

@@ -1,6 +1,3 @@
-// import {GameMap} from './src/GameMap.js';
-// import {createWebSocketConnection} from './src/websocketSetup.js'
-
 const con = require('./src/websocketSetup').createWebSocketConnection();
 
 const gameController = require('./src/GameController').GameController(con.io);
