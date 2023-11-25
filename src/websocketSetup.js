@@ -33,7 +33,7 @@ function createWebSocketConnection(){
 		gameSession(socket.request, {}, next);
 	});
 
-	return {io, httpServer, app};
+	return {io, httpServer, app, fs, bcrypt};
 }
 
 module.exports = { createWebSocketConnection };
