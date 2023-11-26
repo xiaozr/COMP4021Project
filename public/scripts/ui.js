@@ -82,8 +82,8 @@ function updateMap(staticMap, unitsMap, playerMap, rowCnt, colCnt) {
 
 function initScoreBoard(table,players){
 
-	// Create headers
-	var headers = ["Player", "Army", "Land"];
+	// Create header
+	var headers = ["Player", "Army", "Land", "Kill"];
 	var tr = document.createElement("tr");
 
 	headers.forEach(function(header) {
@@ -97,19 +97,13 @@ function initScoreBoard(table,players){
 
 	table.appendChild(tr);
 
-	// Create data rows
-	//TODO:var players = playerList
-	//var players = ["p1","p2","p3"]
-	//console.log(players);
-
 	let count = 1;
-
 	players.forEach(function(player) {
 		var tr = document.createElement("tr");
 	  
 		headers.forEach(function(header) {
 			var td = document.createElement("td");
-			td.id = player + header.charAt(0).toUpperCase() + header.slice(1); // "example: tonyArmy, stevenLand"
+			td.id = player + header; // "example: tonyArmy, stevenLand"
 
 			if (header === "Player") {
 				td.style.backgroundColor = PlayerID_to_Color[count++]; 
@@ -134,35 +128,74 @@ function initScoreBoard(table,players){
   
 }
 
-function updateScoreBoard(table,unitsMap,playerMap,rowCnt,colCnt){
-    // Initialize a dictionary to hold the scores
-    let scores = {};
-
-    // Iterate over the maps
-    for(let i = 0; i < rowCnt; i++) {
-        for(let j = 0; j < colCnt; j++) {
-            // If a player is present at this cell
-            if(playerMap[i][j] !== 0) {
-                // If this player is not already in the scores dictionary, add them
-                if(!(playerMap[i][j] in scores)) {
-                    scores[playerMap[i][j]] = {army: 0, land: 0};
-                }
-
-                // Add the land score
-                scores[playerMap[i][j]].land += 1;
-                
-                // Add the army score
-                scores[playerMap[i][j]].army += unitsMap[i][j];
-            }
-        }
-    }
+function updateScoreBoard(scores){
 
     // Iterate over the players in the scores dictionary
     for(let player in scores) {
         // Update their score in the table
         document.getElementById(`${nameList[player - 1]}Army`).innerText = scores[player].army;
         document.getElementById(`${nameList[player - 1]}Land`).innerText = scores[player].land;
+    let kills = parseInt(document.getElementById(`${nameList[player - 1]}Kill`).innerText);
+		document.getElementById(`${nameList[player - 1]}Kill`).innerText = scores[player].kill+kills;
     }    
+}
+
+function initFinalScoreBoard(table, players, scores){
+    // Create header
+    var headers = ["Rank", "Player", "Army", "Land", "Kill"];
+    var tr = document.createElement("tr");
+
+    headers.forEach(function(header) {
+        var th = document.createElement("th");
+        th.textContent = header;
+        th.style.color = "white"
+        th.style.backgroundColor = "black";
+        th.style.padding = "10px";
+        tr.appendChild(th);
+    });
+
+    table.appendChild(tr);
+
+    players.forEach(function(player, index) {
+        var tr = document.createElement("tr");
+
+        headers.forEach(function(header) {
+            var td = document.createElement("td");
+            td.id = player + header; // "example: tonyArmy, stevenLand"
+
+            if (header === "Rank") {
+                td.textContent = index + 1; // index starts at 0, so add 1 for rank
+				td.style.background = 'white';
+
+            } else if (header === "Player") {
+                td.textContent = player;
+				// Calculate lightness based on rank (index)
+				// Assume maximum lightness is 70 and minimum is 30
+				// lightness decreases as rank increases
+				let maxLightness = 70;
+				let minLightness = 30;
+				let lightness = maxLightness - (index * ((maxLightness - minLightness) / (players.length - 1)));
+				
+				// Set background color using HSL
+				// Hue is set to 50 for golden color, Saturation is 100%
+				td.style.backgroundColor = `hsl(50, 100%, ${lightness}%)`;
+            } else {
+                td.textContent = scores[player][header.toLowerCase()];
+				td.style.background = 'white';
+            }
+
+            td.style.border = "1px solid black";
+            td.style.textAlign = "center";
+            td.style.fontWeight = "bold";
+            td.style.fontStyle = "italic"; 
+            td.style.padding = "10px"; 
+            tr.appendChild(td);
+        });
+
+        table.appendChild(tr);
+    });
+
+    table.style.borderCollapse = 'collapse';
 }
 
 

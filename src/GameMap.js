@@ -111,7 +111,7 @@ function GameMap(playerList){
 	}
 
 	/**
-	 	 * @param {Number} r1 row of source cell
+	 * @param {Number} r1 row of source cell
 	 * @param {Number} c1 column of source cell
 	 * @param {Number} dir direction of movement, either 1,2,3,4
 	 * @param {Number} rate rate of units moved.
@@ -173,7 +173,13 @@ function GameMap(playerList){
 		return playerMap[r][c] == playerID;
 	}
 
-	return {gameTick, toPayload, growUnits, moveUnits, checkCell};
+	function setPlayerAtCell(player, cell) {
+            playerMap[cell.r1][cell.c1] = player;
+			unitsMap[cell.r1][cell.c1] = 100;
+			staticMap[cell.r1][cell.c1] = MapValueEnum.CITY;
+    }
+
+	return {gameTick, toPayload, growUnits, moveUnits, checkCell, setPlayerAtCell};
 }
 
 module.exports = {GameMap};

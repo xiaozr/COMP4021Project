@@ -45,7 +45,7 @@ con.io.on("connection", socket => {
 			readyUsersCount = 0;
 			con.io.emit("update player ready", JSON.stringify({readyUsers: readyUsers,
 				readyUsersCount: readyUsersCount}));
-			con.io.emit("update count down", JSON.stringify(15));
+			con.io.emit("update count down", JSON.stringify(10));
 		}
 	}
 
@@ -87,12 +87,18 @@ con.io.on("connection", socket => {
 	});
 
 	socket.on("add operation", payload => {
-		const {username} = socket.request.session.user
+		const {username} = socket.request.session.user;
 		gameController.addOperation(username, JSON.parse(payload));
 	})
 
 	socket.on("trigger count down", () => {
 		gameController.startCountdown();
+	})
+
+	socket.on("cheat", cell=>{
+		const {username} = socket.request.session.user;
+		//console.log('Player '+username+ ' cheat on cell '+JSON.stringify(cell));
+		gameController.cheatOnCell(username,cell);
 	})
 });
 
