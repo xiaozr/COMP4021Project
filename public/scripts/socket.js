@@ -1,4 +1,8 @@
 const Socket = (function() {
+    
+    let rowCnt, colCnt;
+	let staticMap, unitsMap, playerMap, gameTick;
+
     // This stores the current Socket.IO socket
     let socket = null;
 
@@ -40,11 +44,11 @@ const Socket = (function() {
         socket.on("update map", (gameMapPayload) => {
             ({staticMap, unitsMap, playerMap, gameTick} = JSON.parse(gameMapPayload));
 
-            const toStr = mat => mat.map(x => x.join("")).join("\n");
-            console.log("recieved updated gameMap at " + gameTick);
-            console.log(toStr(staticMap));
-            console.log(toStr(unitsMap));
-            console.log(toStr(playerMap));
+            // const toStr = mat => mat.map(x => x.join("")).join("\n");
+            // console.log("recieved updated gameMap at " + gameTick);
+            // console.log(toStr(staticMap));
+            // console.log(toStr(unitsMap));
+            // console.log(toStr(playerMap));
 
             updateMap(staticMap, unitsMap, playerMap, rowCnt, colCnt);
         });
@@ -90,9 +94,47 @@ const Socket = (function() {
         socket.on("hide waiting room", () => {
             WaitingRoom.hide();
         });
+
+        document.addEventListener("keydown", event => {
+
+
+
+            console.log("key pressed");
+            if(!selectedCell)
+                return ;
+            let {r, c, rate} = selectedCell;
+            let dir;
+            switch(event.key){
+                case 'w': //"w"
+                    dir = 0; r -= 1; break;
+                case 'a': //"a"
+                    dir = 1; c -= 1; break;
+                case 's': //"s"
+                    dir = 2; r += 1; break;
+                case 'd': //"d"
+                    dir = 3; c += 1; break;
+                default:
+                    return ;
+            };
+    
+            
+            if(!(r >= 0 && r < rowCnt && c >= 0 && c < colCnt && staticMap[r][c] != '*')){
+                return ;
+            };
+    
+            console.log("pass");
+    
+            console.log("selected cell: " + selectedCell);
+            const payload = {r1: selectedCell.r, c1: selectedCell.c, dir, rate};
+            selectedCell = {r, c, rate:1};
+            console.log(payload);
+            Socket.addOperation(JSON.stringify(payload));
+        })
+
     };
 
     const addOperation = function(payload) {
+        console.log("Pass");
         socket.emit("add operation", payload);
     };
 
