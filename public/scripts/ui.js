@@ -71,60 +71,12 @@ function updateMap(staticMap, unitsMap, playerMap, rowCnt, colCnt) {
 }
 
 function start(){
-	const socket = io();
 	let rowCnt, colCnt;
 	let staticMap, unitsMap, playerMap, gameTick;
-
-	socket.on("connect", () => {
-		console.log("websocket connected");
-		socket.emit("start game");
-	});
-
-	socket.on("init map", gameMapPayload => {
-		({staticMap, unitsMap, playerMap, gameTick} = JSON.parse(gameMapPayload));
-		
-		const toStr = mat => mat.map(x => x.join("")).join("\n");
-		console.log("recieved init gameMap, gameTick = " + gameTick);
-		console.log(toStr(staticMap));
-		console.log(toStr(unitsMap));
-		console.log(toStr(playerMap));
-
-		
-		rowCnt = staticMap.length;
-		colCnt = staticMap[0].length;
-
-		initMap(staticMap, unitsMap, playerMap, rowCnt, colCnt, document.getElementById("gameMap")); // Draw Map on front end
-    });
-
-
-	socket.on("update map", (gameMapPayload) => {
-		({staticMap, unitsMap, playerMap, gameTick} = JSON.parse(gameMapPayload));
-
-		const toStr = mat => mat.map(x => x.join("")).join("\n");
-		console.log("recieved updated gameMap at " + gameTick);
-		console.log(toStr(staticMap));
-		console.log(toStr(unitsMap));
-		console.log(toStr(playerMap));
-
-		updateMap(staticMap, unitsMap, playerMap, rowCnt, colCnt);
-	})
-
-	socket.on("init score",playerList => {
-		nameList = playerList;
-		initScoreBoard(document.getElementById("scoreBoard"),nameList)
-		
-	})
-
-	socket.on("update score",(gameMapPayload) =>{
-
-		const {unitsMap, playerMap} = JSON.parse(gameMapPayload);
-		updateScoreBoard(document.getElementById("scoreBoard"),unitsMap,playerMap,rowCnt,colCnt);
-	})
-
-	socket.on("player killed", payload => {
-		killedID = parseInt(payload);
-		console.log(killedID + "get killed");
-	})
+	
+	console.log("connecting");
+	Socket.connect();
+	console.log("success connect");
 
 	document.addEventListener("keydown", event => {
 		console.log("key pressed");
@@ -152,7 +104,7 @@ function start(){
 		const payload = {r1: selectedCell.r, c1: selectedCell.c, dir, rate};
 		selectedCell = {r, c, rate:1};
 		console.log(payload);
-		socket.emit("add operation", JSON.stringify(payload));
+		Socket.addOperation(JSON.stringify(payload));
 	})
 }
 
@@ -320,9 +272,11 @@ const SignInForm = (function() {
                     //UserPanel.update(Authentication.getUser());
                     //UserPanel.show();
 					
-                    //Socket.connect();
+					WaitingRoom.show();
 
 					start();
+					console.log("goood");
+					//socket.emit("add player", username);
                 },
                 (error) => { $("#signin-message").text(error); }
             );
@@ -371,6 +325,77 @@ const SignInForm = (function() {
     };
 
     return { initialize, show, hide };
+})();
+
+const WaitingRoom = (function() {
+	var username;
+    // This function initializes the UI
+    const initialize = function() {
+		$("#waiting-room").hide();
+
+		$("#get-ready").click(function(){
+			console.log("ready clicked");
+			Socket.addReadyUser(username);
+		});
+	};
+
+	// This function shows the form
+	const show = function(_username) {
+		console.log("show");
+		username = _username;
+		$("#waiting-room").fadeIn(500);
+	};
+	// socket.emit("add player");
+    // This function updates the online users panel
+    const update = function(onlineUsers) {
+        const onlineUsersArea = $("#online-users-area");
+
+        // Clear the online users area
+        onlineUsersArea.empty();
+
+		// Get the current user
+        const currentUser = Authentication.getUser();
+
+        // Add the user one-by-one
+        for (const username in onlineUsers) {
+            if (username != currentUser.username) {
+                onlineUsersArea.append(
+                    $("<div id='username-" + username + "'></div>")
+                        .append(UI.getUserDisplay(onlineUsers[username]))
+                );
+            }
+        }
+    };
+
+    // This function adds a user in the panel
+	const addUser = function(user) {
+        const onlineUsersArea = $("#online-users-area");
+		console.log("adding user to ready user");
+		
+		// Find the user
+		const userDiv = onlineUsersArea.find("#username-" + user.username);
+		
+		// Add the user
+		if (userDiv.length == 0) {
+			onlineUsersArea.append(
+				$("<div id='username-" + user.username + "'></div>")
+					.append(UI.getUserDisplay(user))
+			);
+		}
+	};
+
+    // This function removes a user from the panel
+	const removeUser = function(user) {
+        const onlineUsersArea = $("#online-users-area");
+		
+		// Find the user
+		const userDiv = onlineUsersArea.find("#username-" + user.username);
+		
+		// Remove the user
+		if (userDiv.length > 0) userDiv.remove();
+	};
+
+    return { show, initialize, update, addUser, removeUser };
 })();
 
 

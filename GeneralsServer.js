@@ -4,6 +4,7 @@ const gameController = require('./src/GameController').GameController(con.io);
 let connectionCnt = 0;
 
 const userManger = require('./src/UserManager')
+const waitingRoom = require('./public/scripts/ui').WaitingRoom;
 
 var onlineUsers = {}
 
@@ -11,6 +12,7 @@ con.io.on("connection", socket => {
 	
 	// const username = "user" + (++connectionCnt);
 	// gameController.addUser(username, socket);
+	console.log("in server conection!");
 
 	if(socket.request.session && socket.request.session.user){
 
@@ -18,12 +20,15 @@ con.io.on("connection", socket => {
 		
 		onlineUsers[username] = {avatar,name};
 		console.log("Online users: [" + Object.keys(onlineUsers) + "]");
-		//io.emit("add user",JSON.stringify(user));
 		
-	gameController.addUser(username, socket);
+		//gameController.addUser(username, socket);
 
-}
+	}
 	
+	socket.on("add player ready", (username) => {
+		const {avatar,name} = onlineUsers[username];
+		waitingRoom.addUser(JSON.stringify({username, avatar, name}));
+	})
 
 	socket.on("disconnect", () => {
 		console.log("Refresh");
