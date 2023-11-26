@@ -75,7 +75,7 @@ const Socket = require("./socket")
 function start(){
 	let rowCnt, colCnt;
 	let staticMap, unitsMap, playerMap, gameTick;
-	
+
 	console.log("connecting");
 	Socket.connect();
 	console.log("success connect");
@@ -274,10 +274,10 @@ const SignInForm = (function() {
                     //UserPanel.update(Authentication.getUser());
                     //UserPanel.show();
 					
-					WaitingRoom.show();
 
 					start();
 					console.log("goood");
+					WaitingRoom.show();
 					//socket.emit("add player", username);
                 },
                 (error) => { $("#signin-message").text(error); }
@@ -330,49 +330,72 @@ const SignInForm = (function() {
 })();
 
 const WaitingRoom = (function() {
-	var username;
+	// TODO: replace with global variable
+	var seconds = 15; // Initial countdown value
+	const MAX_USER = 8;
+
     // This function initializes the UI
     const initialize = function() {
 		$("#waiting-room").hide();
 
 		$("#get-ready").click(function(){
 			console.log("ready clicked");
-			Socket.addReadyUser(username);
+			Socket.addReadyUser();
 		});
+
+		$("#waiting-sign-out").click(function(){
+			console.log("signout clicked");
+			//TODO: sign out
+		});		
 	};
+
+	// Function to update the countdown display
+	function updateReadyUserCountDisplay(number) {
+		var countdownElement = document.getElementById("readyusercount");
+		countdownElement.textContent = number;
+	}
+		
+	// Function to update the countdown display
+	function updateCountdownDisplay(seconds) {
+	var countdownElement = document.getElementById("timeleft");
+	countdownElement.textContent = seconds + "s";
+	}
 
 	// This function shows the form
 	const show = function(_username) {
 		console.log("show");
 		username = _username;
 		$("#waiting-room").fadeIn(500);
+		Socket.updateReadyUser();
 	};
-	// socket.emit("add player");
-    // This function updates the online users panel
-    const update = function(onlineUsers) {
-        const onlineUsersArea = $("#online-users-area");
+
+	const hide = function() {
+		$("#waiting-room").fadeOut(500);
+	}
+
+    // This function updates the ready users panel
+    const update = function(readyUserPayload) {
+		const {readyUsers, readyUsersCount} = readyUserPayload;
+        const readyUsersArea = $("#ready-users-area");
+		console.log(readyUsers, readyUsersCount);
 
         // Clear the online users area
-        onlineUsersArea.empty();
-
-		// Get the current user
-        const currentUser = Authentication.getUser();
+        readyUsersArea.empty();
+		readyUsersArea.append($("<div class='caption'>Ready Users</div>"));
 
         // Add the user one-by-one
-        for (const username in onlineUsers) {
-            if (username != currentUser.username) {
-                onlineUsersArea.append(
-                    $("<div id='username-" + username + "'></div>")
-                        .append(UI.getUserDisplay(onlineUsers[username]))
-                );
-            }
+        for (const username in readyUsers) {
+			readyUsersArea.append(
+				$("<div id='username-" + username + "'></div>")
+					.append(UI.getUserDisplay(readyUsers[username]))
+			);
         }
+		updateReadyUserCountDisplay(readyUsersCount);
     };
 
     // This function adds a user in the panel
-	const addUser = function(user) {
-        const onlineUsersArea = $("#online-users-area");
-		console.log("adding user to ready user");
+	const addUser = function(user, readyUserSize) {
+        const onlineUsersArea = $("#ready-users-area");
 		
 		// Find the user
 		const userDiv = onlineUsersArea.find("#username-" + user.username);
@@ -384,6 +407,7 @@ const WaitingRoom = (function() {
 					.append(UI.getUserDisplay(user))
 			);
 		}
+		updateReadyUserCountDisplay(readyUserSize);
 	};
 
     // This function removes a user from the panel
@@ -397,8 +421,21 @@ const WaitingRoom = (function() {
 		if (userDiv.length > 0) userDiv.remove();
 	};
 
-    return { show, initialize, update, addUser, removeUser };
+    return { show, hide, initialize, update, addUser, removeUser, updateCountdownDisplay};
 })();
 
+const UI = (function() {
+    // This function gets the user display
+    const getUserDisplay = function(user) {
+		//const {username, avatar, name} = JSON.parse(user);
+		//console.log(username, avatar, name);
+        return $("<div class='field-content row shadow'></div>")
+            .append($("<span class='user-avatar'>" +
+			        Avatar.getCode(user.avatar) + "</span>"))
+            .append($("<span class='user-name'>" + user.name + "</span>"));
+    };
+
+    return { getUserDisplay };
+})();
 
 

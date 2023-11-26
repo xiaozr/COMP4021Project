@@ -28,5 +28,15 @@
     "avatar": "Hamster",
     "name": "asd",
     "hash": "$2b$10$4q3hAA3p/QauJx5F5FYZgeSAcQyXE2s18X17NkuKqD8EsJqFVb4Ty"
+  },
+  "qwe": {
+    "avatar": "Rabbit Face",
+    "name": "qwe",
+    "hash": "$2b$10$jhG0bBa3mlUW6bGbLWRahuNXGB35Xn6X5XV8bfx67v1OOJ.shHdem"
+  },
+  "zxc": {
+    "avatar": "Rabbit",
+    "name": "zxc",
+    "hash": "$2b$10$knClLA0vU3U2Et.SsHU9R.h23K.EXlpNb0eqBvQLo3efBke5wLiCW"
   }
 }

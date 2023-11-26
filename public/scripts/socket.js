@@ -12,7 +12,7 @@ const Socket = (function() {
 
         socket.on("connect", () => {
             console.log("websocket connected");
-            //socket.emit("start game");
+            socket.emit("get player ready");
         });
 
         socket.on("init map", gameMapPayload => {
@@ -31,9 +31,10 @@ const Socket = (function() {
             initMap(staticMap, unitsMap, playerMap, rowCnt, colCnt, document.getElementById("gameMap")); // Draw Map on front end
         });
 
-        socket.on("add player ready", (user) => {
-            console.log("adding ready player");
-            WaitingRoom.addUser(user);
+        socket.on("add player ready", (_user, _readyUsersCount) => {
+            const {user, readyUsersCount} = JSON.parse(_user, _readyUsersCount);
+            console.log("adding ready player", user, readyUsersCount);
+            WaitingRoom.addUser(user, readyUsersCount);
         });
 
         socket.on("update map", (gameMapPayload) => {
@@ -64,17 +65,50 @@ const Socket = (function() {
             killedID = parseInt(payload);
             console.log(killedID + "get killed");
         });
+
+        socket.on("update player ready", (payload) => {
+            payload = JSON.parse(payload);
+            console.log("updateplayerready", payload);
+            WaitingRoom.update(payload);
+        });
+
+        socket.on("start count down", () => {
+            console.log("start count down!!!!!");
+            socket.emit("trigger count down");
+        });
+
+        socket.on("update count down", (seconds) => {
+            console.log("update count down!!!!!");
+            WaitingRoom.updateCountdownDisplay(seconds);
+        });
+
+        socket.on("prepare start game", () => {
+            console.log("prepared start game");
+            socket.emit("start game");
+        });
+
+        socket.on("hide waiting room", () => {
+            WaitingRoom.hide();
+        });
     };
 
     const addOperation = function(payload) {
         socket.emit("add operation", payload);
     };
 
-    // This function disconnects the socket from the server
-    const addReadyUser = function(username) {
-        console.log("adding player");
-        io.emit("add player ready",JSON.stringify(username));
+    const addReadyUser = function() {
+        if (socket && socket.connected) {
+            socket.emit("broadcast add player ready");
+        }
     };
+
+    /*const updateReadyUser = function() {
+        console.log("updateReadyUser");
+        if (socket && socket.connected) {
+            console.log("updateReadyUser");
+            socket.emit("get player ready");
+        }
+    };*/
 
     return { getSocket, connect, addReadyUser, addOperation};
 })();

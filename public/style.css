@@ -229,7 +229,7 @@ button.icon:active {
     border-radius: 10px;
     box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
 }
-#online-users-area {
+#ready-users-area {
     flex-grow: 1;
     width: 300px;
     height: 500px;
