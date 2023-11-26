@@ -70,8 +70,6 @@ function updateMap(staticMap, unitsMap, playerMap, rowCnt, colCnt) {
 		}
 }
 
-const Socket = require("./socket")
-
 function start(){
 	let rowCnt, colCnt;
 	let staticMap, unitsMap, playerMap, gameTick;
