@@ -12,7 +12,7 @@
     <!-- Score board -->
     <table id="scoreBoard"></table>
 
-<!-- GameMap -->
+    <!-- GameMap -->
     <table id="gameMap"></table>
 
     <!-- Signin-overlay -->
@@ -47,6 +47,16 @@
             </form>
         </div>
     </div>
+
+    <!-- Gameover overlay -->
+    <div id="Gameover-overlay">
+        <div class="centered-content">
+            <h1 id="game-over-text">Game Over</h1>
+            <table id="final-ranking"></table>
+            <button id="replay-button">Play Again</button>
+        </div>
+    </div>
+
 
     <script src="/socket.io/socket.io.min.js"></script>
     <script src="scripts/ui.js"></script>

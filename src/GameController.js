@@ -20,10 +20,13 @@ function GameController(io){
 	let playerOperationBuffer = new Map();
 	let playerIDPool = [1,2,3,4,5,6,7,8];
 	let mainTimer, gameEndTimeout;
+	let gameTime = 3000;
+	let playerKilled;
 
 	function gameIteration(){
 		//increase units on map
 		gameMap.growUnits();
+		let Scores = {};
 
 		//execute one operation for each user
 		for(const [playerID, operationList] of playerOperationBuffer){
@@ -39,14 +42,67 @@ function GameController(io){
 					sound.play('public/audios/move.wav');
 				else if (result<0)
 					sound.play('public/audios/move_error.wav');
-				if(result > 0)
-				sound.play('public/audios/win.wav');
-					io.emit("player killed", result);
+				if(result > 0){
+					sound.play('public/audios/win.wav');
+
+					if(!(playerID in Scores)) {
+						Scores[playerID] = {army: 0, land: 0, kill: 0};
+					}
+	
+					// Update the kill score for the player
+					Scores[playerID].kill += 1;
+
+					const data = {
+						killedID: result,
+						killerID: playerID
+					}
+					io.emit("player killed", JSON.stringify(data));
+				}
+			}
+		}
+
+
+		const {staticMap,unitsMap,playerMap} = JSON.parse(gameMap.toPayload());
+		rowsCnt = staticMap.length;
+		colsCnt = staticMap[0].length;
+
+		let userList = switchKeyValue(playerList); // userList: {1:Tony, 2:Tom, 3:Jacky}
+
+		// Iterate over the maps to calculate user scores
+		for(let i = 0; i < rowsCnt; i++) {
+			for(let j = 0; j < colsCnt; j++) {
+				// If a player is present at this cell
+				if(playerMap[i][j] !== 0) {
+					// If this player is not already in the scores dictionary, add them
+					if(!(playerMap[i][j] in Scores)) {
+						Scores[playerMap[i][j]] = {army: 0, land: 0, kill: 0};
+					}
+	
+					// Add the land score
+					Scores[playerMap[i][j]].land += 1;
+					
+					// Add the army score
+					Scores[playerMap[i][j]].army += unitsMap[i][j];
+	
+					// TODO: Add the kill socre
+					//playerScores[gameMap.playerMap[i][j]].kill += 1;
+
+					//playerScores = Scores;
+				}
 			}
 		}
 
 		io.emit("update map", gameMap.toPayload());
-		io.emit("update score", gameMap.toPayload());
+		io.emit("update score", JSON.stringify(Scores));
+	}
+
+	// Helper function: switch key and value
+	function switchKeyValue(map) {
+		let switchedMap = new Map();
+		for (let [key, value] of map.entries()) {
+			switchedMap.set(value, key);
+		}
+		return switchedMap;
 	}
 
 	function isStarted(){
@@ -95,16 +151,18 @@ function GameController(io){
 		mainTimer = makeLoop(updatePeriod, gameIteration); // Update game every 0.5 seconds
 
 		mainTimer.start();
-		gameEndTimeout = setTimeout(endGame, 300000); // Game Time Limit: 5 minutes
+		gameEndTimeout = setTimeout(endGame, gameTime); // Game Time Limit: 5 minutes
 		return true;
 	}
 
 	function endGame(){
 		console.log("game ended at " + new Date().toLocaleString());
-
+		
 		mainTimer.stop();
 		clearTimeout(gameEndTimeout);
 		mainTimer = null;
+
+		io.emit("end game",Array.from(playerList.keys()));
 	}
 
 	function addOperation(username, operation){

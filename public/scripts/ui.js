@@ -19,57 +19,6 @@ const PlayerID_to_Color = {
 
 let selectedCell;
 
-function initMap(staticMap, unitsMap, playerMap, rowCnt, colCnt, table){
-	while (table.firstChild) {
-		table.removeChild(table.firstChild);
-	}
-
-	for (let i = 0; i < rowCnt; i++) {
-		let row = document.createElement("tr");
-		for (let j = 0; j < colCnt; j++) {
-			let cell = document.createElement("td");
-			cell.classList.add("cell");
-
-			let img = document.createElement("img");
-			img.id = `img-${i},${j}`;
-			img.src = MapValueEnum_to_image[staticMap[i][j]];
-			img.height = 78;
-			img.width = 78;
-			cell.appendChild(img);
-
-			let indexSpan = document.createElement("span");
-			indexSpan.classList.add("grid-number");
-			indexSpan.id = `span-${i},${j}`;
-			indexSpan.textContent = unitsMap[i][j];
-			indexSpan.style.visibility = unitsMap[i][j] > 0 ? 'visible' : 'hidden';
-			cell.appendChild(indexSpan);
-
-			cell.style.backgroundColor = PlayerID_to_Color[playerMap[i][j]];
-			cell.id = `cell-${i},${j}`;
-			cell.onclick = () => {
-				selectedCell = {r: i, c: j, rate: 0.5};
-				console.log(selectedCell);
-			}
-			cell.ondblclick = () => {
-				selectedCell = {r: i, c: j, rate: 0.5};
-				console.log(selectedCell);
-			}
-			row.appendChild(cell);
-		}
-		table.appendChild(row);
-	}
-}
-
-function updateMap(staticMap, unitsMap, playerMap, rowCnt, colCnt) {
-	for (let i = 0; i < rowCnt; i++)
-		for (let j = 0; j < colCnt; j++){
-			document.getElementById(`img-${i},${j}`).src = MapValueEnum_to_image[staticMap[i][j]];
-			document.getElementById(`span-${i},${j}`).textContent = unitsMap[i][j];
-			document.getElementById(`span-${i},${j}`).style.visibility = unitsMap[i][j] > 0 ? 'visible' : 'hidden';
-			document.getElementById(`cell-${i},${j}`).style.backgroundColor = PlayerID_to_Color[playerMap[i][j]];
-		}
-}
-
 function start(){
 	const socket = io();
 	let rowCnt, colCnt;
@@ -101,29 +50,73 @@ function start(){
 		({staticMap, unitsMap, playerMap, gameTick} = JSON.parse(gameMapPayload));
 
 		const toStr = mat => mat.map(x => x.join("")).join("\n");
-		console.log("recieved updated gameMap at " + gameTick);
-		console.log(toStr(staticMap));
-		console.log(toStr(unitsMap));
-		console.log(toStr(playerMap));
+		// console.log("recieved updated gameMap at " + gameTick);
+		// console.log(toStr(staticMap));
+		// console.log(toStr(unitsMap));
+		// console.log(toStr(playerMap));
 
 		updateMap(staticMap, unitsMap, playerMap, rowCnt, colCnt);
 	})
 
 	socket.on("init score",playerList => {
 		nameList = playerList;
-		initScoreBoard(document.getElementById("scoreBoard"),nameList)
+		initScoreBoard(document.getElementById("scoreBoard"),playerList)
 		
 	})
 
-	socket.on("update score",(gameMapPayload) =>{
+	socket.on("update score",(playerScores) =>{
 
-		const {unitsMap, playerMap} = JSON.parse(gameMapPayload);
-		updateScoreBoard(document.getElementById("scoreBoard"),unitsMap,playerMap,rowCnt,colCnt);
+		const scores = JSON.parse(playerScores);
+		updateScoreBoard(scores);
 	})
 
-	socket.on("player killed", payload => {
-		killedID = parseInt(payload);
-		console.log(killedID + "get killed");
+	socket.on("player killed", result => {
+		var {killedID,killerID} = JSON.parse(result);
+		killedID = parseInt(killedID);
+		killerID = parseInt(killerID);
+		console.log("player "+killedID + " get killed by player " + killerID);
+	})
+
+	socket.on("end game", players=>{
+
+		let finalScores = {};
+
+		players.forEach(player => {
+			let armyScore = parseInt(document.getElementById(`${player}Army`).innerText);
+			let landScore = parseInt(document.getElementById(`${player}Land`).innerText);
+			let killScore = parseInt(document.getElementById(`${player}Kill`).innerText);
+	
+			finalScores[player] = {
+				army: armyScore,
+				land: landScore,
+				kill: killScore
+			};
+		});
+
+		// Sort players by kills, then by land
+		let sortedPlayers = Object.keys(finalScores).sort((a, b) => {
+			if (finalScores[b].kill === finalScores[a].kill) {
+				return finalScores[b].land - finalScores[a].land;
+			}
+			return finalScores[b].kill - finalScores[a].kill;
+		});
+
+		document.getElementById('scoreBoard').style.display= "none";
+
+		initFinalScoreBoard(document.getElementById('final-ranking'), sortedPlayers, finalScores);
+		document.getElementById('Gameover-overlay').style.display= "block";
+		console.log(finalScores);
+
+
+		document.getElementById('replay-button').addEventListener('click', function() {
+			// Hide the game over overlay
+			document.getElementById('Gameover-overlay').style.display = 'none';
+		
+			// Restart the game
+			// TODO: Bring back to waiting room
+			start();
+		});
+
 	})
 
 	document.addEventListener("keydown", event => {
@@ -211,8 +204,8 @@ function updateMap(staticMap, unitsMap, playerMap, rowCnt, colCnt) {
 
 function initScoreBoard(table,players){
 
-	// Create headers
-	var headers = ["Player", "Army", "Land"];
+	// Create header
+	var headers = ["Player", "Army", "Land", "Kill"];
 	var tr = document.createElement("tr");
 
 	headers.forEach(function(header) {
@@ -226,19 +219,13 @@ function initScoreBoard(table,players){
 
 	table.appendChild(tr);
 
-	// Create data rows
-	//TODO:var players = playerList
-	//var players = ["p1","p2","p3"]
-	//console.log(players);
-
 	let count = 1;
-
 	players.forEach(function(player) {
 		var tr = document.createElement("tr");
 	  
 		headers.forEach(function(header) {
 			var td = document.createElement("td");
-			td.id = player + header.charAt(0).toUpperCase() + header.slice(1); // "example: tonyArmy, stevenLand"
+			td.id = player + header; // "example: tonyArmy, stevenLand"
 
 			if (header === "Player") {
 				td.style.backgroundColor = PlayerID_to_Color[count++]; 
@@ -263,35 +250,74 @@ function initScoreBoard(table,players){
   
 }
 
-function updateScoreBoard(table,unitsMap,playerMap,rowCnt,colCnt){
-    // Initialize a dictionary to hold the scores
-    let scores = {};
-
-    // Iterate over the maps
-    for(let i = 0; i < rowCnt; i++) {
-        for(let j = 0; j < colCnt; j++) {
-            // If a player is present at this cell
-            if(playerMap[i][j] !== 0) {
-                // If this player is not already in the scores dictionary, add them
-                if(!(playerMap[i][j] in scores)) {
-                    scores[playerMap[i][j]] = {army: 0, land: 0};
-                }
-
-                // Add the land score
-                scores[playerMap[i][j]].land += 1;
-                
-                // Add the army score
-                scores[playerMap[i][j]].army += unitsMap[i][j];
-            }
-        }
-    }
+function updateScoreBoard(scores){
 
     // Iterate over the players in the scores dictionary
     for(let player in scores) {
         // Update their score in the table
         document.getElementById(`${nameList[player - 1]}Army`).innerText = scores[player].army;
         document.getElementById(`${nameList[player - 1]}Land`).innerText = scores[player].land;
+		let kills = parseInt(document.getElementById(`${nameList[player - 1]}Kill`).innerText);
+		document.getElementById(`${nameList[player - 1]}Kill`).innerText = scores[player].kill+kills;
     }    
+}
+
+function initFinalScoreBoard(table, players, scores){
+    // Create header
+    var headers = ["Rank", "Player", "Army", "Land", "Kill"];
+    var tr = document.createElement("tr");
+
+    headers.forEach(function(header) {
+        var th = document.createElement("th");
+        th.textContent = header;
+        th.style.color = "white"
+        th.style.backgroundColor = "black";
+        th.style.padding = "10px";
+        tr.appendChild(th);
+    });
+
+    table.appendChild(tr);
+
+    players.forEach(function(player, index) {
+        var tr = document.createElement("tr");
+
+        headers.forEach(function(header) {
+            var td = document.createElement("td");
+            td.id = player + header; // "example: tonyArmy, stevenLand"
+
+            if (header === "Rank") {
+                td.textContent = index + 1; // index starts at 0, so add 1 for rank
+				td.style.background = 'white';
+
+            } else if (header === "Player") {
+                td.textContent = player;
+				// Calculate lightness based on rank (index)
+				// Assume maximum lightness is 70 and minimum is 30
+				// lightness decreases as rank increases
+				let maxLightness = 70;
+				let minLightness = 30;
+				let lightness = maxLightness - (index * ((maxLightness - minLightness) / (players.length - 1)));
+				
+				// Set background color using HSL
+				// Hue is set to 50 for golden color, Saturation is 100%
+				td.style.backgroundColor = `hsl(50, 100%, ${lightness}%)`;
+            } else {
+                td.textContent = scores[player][header.toLowerCase()];
+				td.style.background = 'white';
+            }
+
+            td.style.border = "1px solid black";
+            td.style.textAlign = "center";
+            td.style.fontWeight = "bold";
+            td.style.fontStyle = "italic"; 
+            td.style.padding = "10px"; 
+            tr.appendChild(td);
+        });
+
+        table.appendChild(tr);
+    });
+
+    table.style.borderCollapse = 'collapse';
 }
 
 
@@ -372,6 +398,22 @@ const SignInForm = (function() {
 
     return { initialize, show, hide };
 })();
+
+
+const GameOver = (function(){
+
+	const displayFinalStatistics = function(){
+
+
+			
+	};
+	
+	return {displayFinalStatistics};
+})();
+
+
+
+
 
 
 
