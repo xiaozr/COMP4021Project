@@ -48,15 +48,40 @@
         </div>
     </div>
 
+    <div id="waiting-room" class="overlay row">
+        <div class="content shadow row">
+            <div id="waiting-info-area" class="col">
+                <p style="font-size: 28px;">WAITING ROOM</p>
+                <div class="spacer-8"></div>
+                <div id="count-time" class = 'col counting'>
+                    <div class="caption">COUNT DOWN</div>
+                    <div id="timeleft" class="caption">15s</div>
+                </div>
+                <div id="count-user" class = 'col counting'>
+                    <div class="caption">NUMBER OF PLAYER</div>
+                    <div id="readyusercount" class="caption">0</div>
+                </div>
+                <div class="spacer-8"></div>
+                <button id="get-ready">I'm Ready!</button>
+                <button id="waiting-sign-out">Sign out</button>
+            </div>
+            <div id="ready-users-area" class="col">
+                <div class="caption">Ready Users</div>
+            </div>
+        </div>
+    </div>
+
     <script src="/socket.io/socket.io.min.js"></script>
     <script src="scripts/ui.js"></script>
     <script src="scripts/registration.js"></script>
     <script src="scripts/authentication.js"></script>
     <script src="scripts/avatar.js"></script>
+    <script src="scripts/socket.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             
             SignInForm.initialize();
+            WaitingRoom.initialize();
             
             Authentication.validate(
                 () => {
@@ -67,7 +92,9 @@
                     start();
                     
                 },
-                () => { SignInForm.show(); }
+                () => {
+                    SignInForm.show(); 
+                }
             );
 
         

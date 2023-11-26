@@ -21,6 +21,22 @@ function GameController(io){
 	let playerIDPool = [1,2,3,4,5,6,7,8];
 	let mainTimer, gameEndTimeout;
 
+	function startCountdown() {
+		console.log("starting count down");
+		let seconds = 15;
+		// Update countdown display every second
+		var countdownInterval = setInterval(function() {
+			seconds--;
+			io.emit("update count down", seconds);
+		
+			if (seconds <= 0) {
+				clearInterval(countdownInterval);
+				console.log("Countdown finished!");
+				io.emit("prepare start game");
+			}
+		}, 1000);
+	}
+
 	function gameIteration(){
 		//increase units on map
 		gameMap.growUnits();
@@ -120,7 +136,7 @@ function GameController(io){
 		return playerList;
 	}
 
-	return {isStarted, addUser, removeUser, startGame, endGame, addOperation, clearOperationBuffer,getPlayerList};
+	return {isStarted, addUser, removeUser, startGame, endGame, addOperation, clearOperationBuffer,getPlayerList, startCountdown};
 }
 
 module.exports = {GameController};

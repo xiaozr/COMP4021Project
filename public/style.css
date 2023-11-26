@@ -11,7 +11,7 @@
 
     --header-background: linear-gradient(to right, #eb4a40, #f59e72);
     --main-panel-background: linear-gradient(white, #fde0c5);
-    --online-users-panel-background: linear-gradient(to right, #fde0c5, #facba6);
+    --waiting-room-background: linear-gradient(to right, #fde0c5, #facba6);
     --chat-panel-background: none;
 
     --title-color: white;
@@ -61,6 +61,7 @@ body {
 .spacer-0 { width: 0; height: 0; }
 .spacer-1 { width: 5px; height: 5px; }
 .spacer-2 { width: 10px; height: 10px; }
+.spacer-8 { width: 10px; height: 40px; }
 .spacer-grow { flex-grow: 1; }
 
 /* Overlay */
@@ -219,18 +220,24 @@ button.icon:active {
     color: var(--date-color);
 }
 
-/* Online users panel */
-#online-users-panel {
-	flex: 0 0 250px;
-    height: 100%;
-    padding: 0;
-    background: var(--online-users-panel-background);
+/* Waiting room */
+.counting{
+    height: 80px;
+    width: 190px;
+    align-self: stretch;
+    background: linear-gradient(to bottom, #191818, #6d6b6b);
+    border-radius: 10px;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
 }
-#online-users-area {
+#ready-users-area {
     flex-grow: 1;
-    width: 100%;
+    width: 300px;
+    height: 500px;
     align-items: flex-start;
+    background: linear-gradient(to bottom, #a5b3e5, #cce5ec);
     justify-content: start;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
     overflow-y: auto;
 }
 
