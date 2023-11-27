@@ -160,13 +160,13 @@ function GameMap(playerList){
 		}
 	}
 
-	function toPayload(){
-		return JSON.stringify({
+	function pack(){
+		return {
 			staticMap,
 			unitsMap,
 			playerMap,
 			gameTick
-		})
+		};
 	}
 
 	function checkCell(playerID, r, c){
@@ -179,7 +179,7 @@ function GameMap(playerList){
 			staticMap[cell.r1][cell.c1] = MapValueEnum.CITY;
     }
 
-	return {gameTick, toPayload, growUnits, moveUnits, checkCell, setPlayerAtCell};
+	return {gameTick, pack, growUnits, moveUnits, checkCell, setPlayerAtCell};
 }
 
 module.exports = {GameMap};

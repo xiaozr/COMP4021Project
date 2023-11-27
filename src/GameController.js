@@ -76,7 +76,7 @@ function GameController(io){
 			}
 		}
 
-		const {staticMap,unitsMap,playerMap} = JSON.parse(gameMap.toPayload());
+		const {staticMap,unitsMap,playerMap} = gameMap.pack();
 		rowsCnt = staticMap.length;
 		colsCnt = staticMap[0].length;
 
@@ -114,7 +114,7 @@ function GameController(io){
 
 		//console.log("remain players: "+remainUsers.size);
 
-		io.emit("update map", gameMap.toPayload());
+		io.emit("update map", JSON.stringify(gameMap.pack()));
 		io.emit("update score", JSON.stringify(Scores));
 
 		return Scores;
@@ -143,9 +143,8 @@ function GameController(io){
 		playerOperationBuffer.set(userPlayerID, []);
 		console.log("add " + username + " as player " + userPlayerID);
 		console.log("Joined Game users: ["+ [...playerList.keys()] +"]");
-
 		if(isStarted()){
-			socket.emit("init map", gameMap.toPayload());
+			socket.emit("start game", JSON.stringify({map: gameMap.pack(), players: Object.fromEntries(playerList)}));
 			socket.emit("init score",Array.from(playerList.keys()));
 		}
 		return true;
@@ -166,10 +165,8 @@ function GameController(io){
 		console.log("map initialized at " + new Date().toLocaleString());
 
 		gameMap = gameMapConstructor.GameMap(Array.from(playerList.values()));
-		//gameMap = gameMapConstructor.GameMap(rowCnt, colCnt, [1,2,3]);
-		//gameMap = gameMapConstructor.GameMap([1,2,3,4,5,6,7,8]);
 
-		io.emit("init map", gameMap.toPayload());
+		io.emit("start game", JSON.stringify({map: gameMap.pack(), players: Object.fromEntries(playerList)}));
 		io.emit("init score",Array.from(playerList.keys()));
 
 		const updatePeriod = 500; 

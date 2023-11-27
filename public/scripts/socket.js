@@ -16,8 +16,10 @@ const Socket = (function() {
             socket.emit("get player ready");
         });
 
-        socket.on("init map", gameMapPayload => {
-            ({staticMap, unitsMap, playerMap, gameTick} = JSON.parse(gameMapPayload));
+        socket.on("start game", gameMapPayload => {
+            const {map, players} = JSON.parse(gameMapPayload);
+            ({staticMap, unitsMap, playerMap, gameTick} = map);
+
             
             const toStr = mat => mat.map(x => x.join("")).join("\n");
             console.log("recieved init gameMap, gameTick = " + gameTick);
@@ -25,7 +27,7 @@ const Socket = (function() {
             console.log(toStr(unitsMap));
             console.log(toStr(playerMap));
 
-            gameMap.initMap(staticMap); // Draw Map on front end
+            gameMap.initMap(staticMap, players); // Draw Map on front end
             gameMap.renderMap(staticMap, unitsMap, playerMap);
         });
 
