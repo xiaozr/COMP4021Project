@@ -5,7 +5,7 @@
     <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
     <link href="style.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 </head>
 <body>
 
@@ -51,29 +51,41 @@
     <div id="waiting-room" class="overlay row">
         <div class="content shadow row">
             <div id="waiting-info-area" class="col">
-                <p style="font-size: 48px; font-weight: bold;">WAITING ROOM</p>
-                <p id="game-rules" style="font-size: 20px;">
-                    <strong>Game Rules:</strong><br>
+                <div style="font-size: 48px; font-weight: bold; margin-left: 195px;">WAITING ROOM</div>
+                <div id="game-rules" style="font-size: 20px;">
+                    <strong>Game Rules:</strong><br><br>
                     1. Each player starts with one general <strong>(your most important tile)</strong> and a few troops on the board.<br>
-                    2. Command your army to move by <strong>(w,a,s,d)&(mouse-click)</strong> and capture other squares. <br>
+                    2. Command your army to move by <strong>(w,a,s,d) and (mouse-click)</strong> and capture other tiles. <br>
                     3. To capture a tile, the tile you're moving from must have more troops than the tile you're moving to.<br>
-                    4. Each square you occupy increases your army by 1 every turn.<br>
-                    5. Over time, cities and captured generals become part of your territory and produce extra troops for you every turn.<br>
+                    4. Each tile you occupy increases your army by 1 every turn.<br>
+                    5. Cities and captured generals become part of your territory and produce extra troops for you every turn.<br>
                     6. You can only see the tiles that your army has visited.<br>
                     7. To win the game, you need to find and capture your opponents' generals and occupy as much of the tiles as possible.
-                </p>
+                </div>
                 <div class="spacer-8"></div>
-                <div id="count-time" class = 'col counting'>
+                <!-- <div id="count-time" class = 'col counting'>
                     <div class="caption">COUNT DOWN</div>
                     <div id="timeleft" class="caption">15s</div>
                 </div>
                 <div id="count-user" class = 'col counting'>
                     <div class="caption">NUMBER OF PLAYER</div>
                     <div id="readyusercount" class="caption">0</div>
-                </div>
+                </div> -->
+                <div class="row"> <!-- Added this wrapper -->
+                    <div id="count-time" class="col counting" style="margin-right: 50px;">
+                        <div class="caption">COUNT DOWN</div>
+                        <div id="timeleft" class="caption">15s</div>
+                    </div>
+                    <div id="count-user" class="col counting">
+                        <div class="caption">NUMBER OF PLAYER</div>
+                        <div id="readyusercount" class="caption">0</div>
+                    </div>
+                </div> <!-- End of wrapper -->
+
+
                 <div class="spacer-8"></div>
-                <button id="get-ready">I'm Ready!</button>
-                <button id="waiting-sign-out">Sign out</button>
+                <button id="get-ready" style="line-height: 3px;">I'm Ready!</button>
+                <button id="waiting-sign-out" style="line-height: 3px; font-size: 20px; padding: 25px 40px;">Sign out</button>
             </div>
             <div id="ready-users-area" class="col">
                 <div class="caption">Ready Users</div>
