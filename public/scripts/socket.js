@@ -59,16 +59,60 @@ const Socket = (function() {
             
         });
 
-        socket.on("update score",(gameMapPayload) =>{
+        socket.on("update score",(playerScores) =>{
 
-            const {unitsMap, playerMap} = JSON.parse(gameMapPayload);
-            updateScoreBoard(document.getElementById("scoreBoard"),unitsMap,playerMap,rowCnt,colCnt);
-        });
-
-        socket.on("player killed", payload => {
-            killedID = parseInt(payload);
-            console.log(killedID + "get killed");
-        });
+            const scores = JSON.parse(playerScores);
+            updateScoreBoard(scores);
+        })
+    
+        socket.on("player killed", result => {
+            var {killedID,killerID} = JSON.parse(result);
+            killedID = parseInt(killedID);
+            killerID = parseInt(killerID);
+            console.log("player "+killedID + " get killed by player " + killerID);
+        })
+    
+        socket.on("end game", players=>{
+    
+            let finalScores = {};
+    
+            players.forEach(player => {
+                let armyScore = parseInt(document.getElementById(`${player}Army`).innerText);
+                let landScore = parseInt(document.getElementById(`${player}Land`).innerText);
+                let killScore = parseInt(document.getElementById(`${player}Kill`).innerText);
+        
+                finalScores[player] = {
+                    army: armyScore,
+                    land: landScore,
+                    kill: killScore
+                };
+            });
+    
+            // Sort players by kills, then by land
+            let sortedPlayers = Object.keys(finalScores).sort((a, b) => {
+                if (finalScores[b].kill === finalScores[a].kill) {
+                    return finalScores[b].land - finalScores[a].land;
+                }
+                return finalScores[b].kill - finalScores[a].kill;
+            });
+    
+            document.getElementById('scoreBoard').style.display= "none";
+    
+            initFinalScoreBoard(document.getElementById('final-ranking'), sortedPlayers, finalScores);
+            document.getElementById('Gameover-overlay').style.display= "block";
+            console.log(finalScores);
+    
+    
+            document.getElementById('replay-button').addEventListener('click', function() {
+                // Hide the game over overlay
+                document.getElementById('Gameover-overlay').style.display = 'none';
+            
+                // Restart the game
+                // TODO: Bring back to waiting room
+                WaitingRoom.initialize();
+            });
+    
+        })
 
         socket.on("update player ready", (payload) => {
             payload = JSON.parse(payload);
@@ -97,13 +141,14 @@ const Socket = (function() {
 
         document.addEventListener("keydown", event => {
 
-
-
             console.log("key pressed");
             if(!selectedCell)
                 return ;
+
             let {r, c, rate} = selectedCell;
             let dir;
+            let cheat;
+            
             switch(event.key){
                 case 'w': //"w"
                     dir = 0; r -= 1; break;
@@ -113,6 +158,8 @@ const Socket = (function() {
                     dir = 2; r += 1; break;
                 case 'd': //"d"
                     dir = 3; c += 1; break;
+                case 'c':
+                    cheat = true; break;
                 default:
                     return ;
             };
@@ -121,6 +168,17 @@ const Socket = (function() {
             if(!(r >= 0 && r < rowCnt && c >= 0 && c < colCnt && staticMap[r][c] != '*')){
                 return ;
             };
+
+            if(cheat==true){
+                let cellToChange = {r1: selectedCell.r, c1: selectedCell.c};
+                console.log("Player cheat!")
+                Socket.cheat(cellToChange);
+                
+                const toStr = mat => mat.map(x => x.join("")).join("\n");
+                console.log(toStr(playerMap));
+                cheat = false;
+                return;
+            }
     
             console.log("pass");
     
@@ -134,7 +192,6 @@ const Socket = (function() {
     };
 
     const addOperation = function(payload) {
-        console.log("Pass");
         socket.emit("add operation", payload);
     };
 
@@ -142,6 +199,10 @@ const Socket = (function() {
         if (socket && socket.connected) {
             socket.emit("broadcast add player ready");
         }
+    };
+
+    const cheat = function(cellToChange){
+        socket.emit("cheat",cellToChange);
     };
 
     /*const updateReadyUser = function() {
@@ -152,5 +213,5 @@ const Socket = (function() {
         }
     };*/
 
-    return { getSocket, connect, addReadyUser, addOperation};
+    return { getSocket, connect, addReadyUser, addOperation, cheat};
 })();

@@ -12,7 +12,7 @@
     <!-- Score board -->
     <table id="scoreBoard"></table>
 
-<!-- GameMap -->
+    <!-- GameMap -->
     <table id="gameMap"></table>
 
     <!-- Signin-overlay -->
@@ -51,7 +51,17 @@
     <div id="waiting-room" class="overlay row">
         <div class="content shadow row">
             <div id="waiting-info-area" class="col">
-                <p style="font-size: 28px;">WAITING ROOM</p>
+                <p style="font-size: 48px; font-weight: bold;">WAITING ROOM</p>
+                <p id="game-rules" style="font-size: 20px;">
+                    <strong>Game Rules:</strong><br>
+                    1. Each player starts with one general <strong>(your most important tile)</strong> and a few troops on the board.<br>
+                    2. Command your army to move by <strong>(w,a,s,d)&(mouse-click)</strong> and capture other squares. <br>
+                    3. To capture a tile, the tile you're moving from must have more troops than the tile you're moving to.<br>
+                    4. Each square you occupy increases your army by 1 every turn.<br>
+                    5. Over time, cities and captured generals become part of your territory and produce extra troops for you every turn.<br>
+                    6. You can only see the tiles that your army has visited.<br>
+                    7. To win the game, you need to find and capture your opponents' generals and occupy as much of the tiles as possible.
+                </p>
                 <div class="spacer-8"></div>
                 <div id="count-time" class = 'col counting'>
                     <div class="caption">COUNT DOWN</div>
@@ -68,6 +78,15 @@
             <div id="ready-users-area" class="col">
                 <div class="caption">Ready Users</div>
             </div>
+        </div>
+    </div>
+
+    <!-- Gameover overlay -->
+    <div id="Gameover-overlay">
+        <div class="centered-content">
+            <h1 id="game-over-text">Game Over</h1>
+            <table id="final-ranking"></table>
+            <button id="replay-button">Play Again</button>
         </div>
     </div>
 

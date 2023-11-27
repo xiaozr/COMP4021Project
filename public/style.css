@@ -26,6 +26,12 @@
     --button-color: white;
     --button-background: black;
     --button-background-hover: black;
+
+    --color-primary: #f7e9a3;
+    --color-secondary: #f7e481;
+    --color-tertiary: #f7df63;
+    --color-quaternary: #f7d631;
+    --color-quinary: #fcd303;
 }
 * {
     font-family: "Abel", sans-serif;
@@ -104,7 +110,7 @@ button {
     color: var(--button-color);
     background: var(--button-background);
     box-shadow: 2px 2px 2px rgb(0, 0, 0, 0.4);
-    padding: 0 20px;
+    padding: 20px;
     transition: 1s background;
     cursor: pointer;
 }
@@ -309,3 +315,144 @@ table {
     visibility: hidden;
     color: #eee;
 }
+
+#center-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+#Gameover-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    text-align: center;
+}
+
+.centered-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+#game-over-text {
+    text-shadow: 3px 3px 0 var(--color-secondary), 6px 6px 0 var(--color-tertiary),
+      9px 9px var(--color-quaternary), 12px 12px 0 var(--color-quinary);
+    font-family: bungee, sans-serif;
+    font-weight: 400;
+    text-transform: uppercase;
+    font-size: calc(2rem + 5vw);
+    text-align: center;
+    margin: 0;
+    color: var(--color-primary);
+    animation: shadows 1.2s ease-in infinite, move 1.2s ease-in infinite;
+    letter-spacing: 0.4rem;
+  }
+  
+@keyframes shadows {
+0% {
+    text-shadow: none;
+}
+10% {
+    text-shadow: 3px 3px 0 var(--color-secondary);
+}
+20% {
+    text-shadow: 3px 3px 0 var(--color-secondary),
+    6px 6px 0 var(--color-tertiary);
+}
+30% {
+    text-shadow: 3px 3px 0 var(--color-secondary),
+    6px 6px 0 var(--color-tertiary), 9px 9px var(--color-quaternary);
+}
+40% {
+    text-shadow: 3px 3px 0 var(--color-secondary),
+    6px 6px 0 var(--color-tertiary), 9px 9px var(--color-quaternary),
+    12px 12px 0 var(--color-quinary);
+}
+50% {
+    text-shadow: 3px 3px 0 var(--color-secondary),
+    6px 6px 0 var(--color-tertiary), 9px 9px var(--color-quaternary),
+    12px 12px 0 var(--color-quinary);
+}
+60% {
+    text-shadow: 3px 3px 0 var(--color-secondary),
+    6px 6px 0 var(--color-tertiary), 9px 9px var(--color-quaternary),
+    12px 12px 0 var(--color-quinary);
+}
+70% {
+    text-shadow: 3px 3px 0 var(--color-secondary),
+    6px 6px 0 var(--color-tertiary), 9px 9px var(--color-quaternary);
+}
+80% {
+    text-shadow: 3px 3px 0 var(--color-secondary),
+    6px 6px 0 var(--color-tertiary);
+}
+90% {
+    text-shadow: 3px 3px 0 var(--color-secondary);
+}
+100% {
+    text-shadow: none;
+}
+}
+
+@keyframes move {
+0% {
+    transform: translate(0px, 0px);
+}
+40% {
+    transform: translate(-12px, -12px);
+}
+50% {
+    transform: translate(-12px, -12px);
+}
+60% {
+    transform: translate(-12px, -12px);
+}
+100% {
+    transform: translate(0px, 0px);
+}
+}
+
+#replay-button {
+    font-size: 1.5em;
+    padding: 10px;
+    margin-top: 1em;
+}
+
+#get-ready{
+    font-size: 24px;
+    line-height: 10px;
+    padding: 30px 30px;
+    cursor: pointer;
+    border: none; /* Removes the default button border */
+    background-color: #4CAF50; /* Adds a background color */
+    color: white; /* Changes the button text color */
+    text-align: center; /* Centers the text */
+    display: inline-block; /* Makes the button inline but also respects padding and margins */
+    transition-duration: 0.4s; /* Adds a transition effect when you hover over the button */
+
+}
+
+#waiting-room {
+    width: 90%; /* Adjust these values as needed */
+    height: 20%;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+
+
+
+
+
+
