@@ -205,13 +205,5 @@ const Socket = (function() {
         socket.emit("cheat",cellToChange);
     };
 
-    /*const updateReadyUser = function() {
-        console.log("updateReadyUser");
-        if (socket && socket.connected) {
-            console.log("updateReadyUser");
-            socket.emit("get player ready");
-        }
-    };*/
-
     return { getSocket, connect, addReadyUser, addOperation, cheat};
 })();
