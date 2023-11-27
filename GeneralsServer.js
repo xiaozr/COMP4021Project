@@ -49,20 +49,13 @@ con.io.on("connection", socket => {
 		}
 	}
 
-	function checkReadyUsersCount() {
-		if (readyUsersCount >= 3) {
-		  startGame();
-		}
-	}
-
-	setInterval(checkReadyUsersCount, 10);
-	
 	socket.on("broadcast add player ready", () => {
 		const {username,avatar,name} = socket.request.session.user;
 		if (username in readyUsers) return;
 		if(readyUsersCount==0) socket.emit("start count down");
 		readyUsers[username] = {avatar, name};
 		readyUsersCount++;
+		if(readyUsersCount>=8) startGame();
 		con.io.emit("add player ready", JSON.stringify({user: socket.request.session.user,
 			readyUsersCount: readyUsersCount}));
 	})
@@ -97,7 +90,6 @@ con.io.on("connection", socket => {
 
 	socket.on("cheat", cell=>{
 		const {username} = socket.request.session.user;
-		//console.log('Player '+username+ ' cheat on cell '+JSON.stringify(cell));
 		gameController.cheatOnCell(username,cell);
 	})
 });
