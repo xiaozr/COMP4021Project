@@ -1,7 +1,4 @@
 const Socket = (function() {
-    
-    let rowCnt, colCnt;
-	let staticMap, unitsMap, playerMap, gameTick;
 
     // This stores the current Socket.IO socket
     let socket = null;
@@ -28,11 +25,8 @@ const Socket = (function() {
             console.log(toStr(unitsMap));
             console.log(toStr(playerMap));
 
-            
-            rowCnt = staticMap.length;
-            colCnt = staticMap[0].length;
-
-            initMap(staticMap, unitsMap, playerMap, rowCnt, colCnt, document.getElementById("gameMap")); // Draw Map on front end
+            gameMap.initMap(staticMap); // Draw Map on front end
+            gameMap.renderMap(staticMap, unitsMap, playerMap);
         });
 
         socket.on("add player ready", (_user, _readyUsersCount) => {
@@ -50,7 +44,7 @@ const Socket = (function() {
             // console.log(toStr(unitsMap));
             // console.log(toStr(playerMap));
 
-            updateMap(staticMap, unitsMap, playerMap, rowCnt, colCnt);
+            gameMap.renderMap(staticMap, unitsMap, playerMap);
         });
 
         socket.on("init score",playerList => {
@@ -140,53 +134,21 @@ const Socket = (function() {
         });
 
         document.addEventListener("keydown", event => {
-
             console.log("key pressed");
-            if(!selectedCell)
-                return ;
-
-            let {r, c, rate} = selectedCell;
-            let dir;
-            let cheat;
-            
             switch(event.key){
                 case 'w': //"w"
-                    dir = 0; r -= 1; break;
+                    gameMap.move(0); break;
                 case 'a': //"a"
-                    dir = 1; c -= 1; break;
+                    gameMap.move(1); break;
                 case 's': //"s"
-                    dir = 2; r += 1; break;
+                    gameMap.move(2); break;
                 case 'd': //"d"
-                    dir = 3; c += 1; break;
+                    gameMap.move(3); break;
                 case 'c':
-                    cheat = true; break;
+                    gameMap.cheat();
                 default:
                     return ;
             };
-    
-            
-            if(!(r >= 0 && r < rowCnt && c >= 0 && c < colCnt && staticMap[r][c] != '*')){
-                return ;
-            };
-
-            if(cheat==true){
-                let cellToChange = {r1: selectedCell.r, c1: selectedCell.c};
-                console.log("Player cheat!")
-                Socket.cheat(cellToChange);
-                
-                const toStr = mat => mat.map(x => x.join("")).join("\n");
-                console.log(toStr(playerMap));
-                cheat = false;
-                return;
-            }
-    
-            console.log("pass");
-    
-            console.log("selected cell: " + selectedCell);
-            const payload = {r1: selectedCell.r, c1: selectedCell.c, dir, rate};
-            selectedCell = {r, c, rate:1};
-            console.log(payload);
-            Socket.addOperation(JSON.stringify(payload));
         })
 
     };
