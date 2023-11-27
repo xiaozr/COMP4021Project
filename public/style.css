@@ -283,6 +283,9 @@ table {
     border-collapse: collapse;
 }
 .cell {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
     border: 2px solid black;
     background-color: #fff;
     width: 80px;
@@ -290,6 +293,10 @@ table {
     text-align: center;
     vertical-align: middle;
     position: relative;
+    box-sizing: border-box;
+}
+.selected-cell {
+    border: 5px solid black;
 }
 
 /* Styles for the score board */
