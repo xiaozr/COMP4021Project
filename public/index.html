@@ -15,6 +15,12 @@
     <!-- GameMap -->
     <table id="gameMap"></table>
 
+    <!-- spectator-mode reminder -->
+    <div id="spectator-mode">SPECTATOR MODE</div>
+
+    <!-- Toast  -->
+    <div id="toast"></div>
+
     <!-- Signin-overlay -->
     <div id="signin-overlay" class="overlay row">
         <div class="content shadow row">
@@ -63,15 +69,7 @@
                     7. To win the game, you need to find and capture your opponents' generals and occupy as much of the tiles as possible.
                 </div>
                 <div class="spacer-8"></div>
-                <!-- <div id="count-time" class = 'col counting'>
-                    <div class="caption">COUNT DOWN</div>
-                    <div id="timeleft" class="caption">15s</div>
-                </div>
-                <div id="count-user" class = 'col counting'>
-                    <div class="caption">NUMBER OF PLAYER</div>
-                    <div id="readyusercount" class="caption">0</div>
-                </div> -->
-                <div class="row"> <!-- Added this wrapper -->
+                                <div class="row"> <!-- Added this wrapper -->
                     <div id="count-time" class="col counting" style="margin-right: 50px;">
                         <div class="caption">COUNT DOWN</div>
                         <div id="timeleft" class="caption">15s</div>
@@ -81,8 +79,6 @@
                         <div id="readyusercount" class="caption">0</div>
                     </div>
                 </div> <!-- End of wrapper -->
-
-
                 <div class="spacer-8"></div>
                 <button id="get-ready" style="line-height: 3px;">I'm Ready!</button>
                 <button id="waiting-sign-out" style="line-height: 3px; font-size: 20px; padding: 25px 40px;">Sign out</button>
@@ -118,11 +114,12 @@
             Authentication.validate(
                 () => {
                     SignInForm.hide();
-                    //UserPanel.update(Authentication.getUser());
-                    //UserPanel.show();
-                    // Game starts
-                    start();
-                    
+                    WaitingRoom.show();
+                                        
+                    console.log("refresh pass");
+
+                    Socket.connect();
+                    //Socket.startGame();
                 },
                 () => {
                     SignInForm.show(); 
