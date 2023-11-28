@@ -8,9 +8,22 @@ const Socket = (function() {
     const getSocket = function() {
         return socket;
     };
-	const connect = function() {
-        //console.log("in connect!");
+
+	const connect = function(_username) {
+        console.log("in connect!");
         socket = io();
+        let username = _username;
+
+        function getBackWaitingRoom() {
+            // Hide the game over overlay
+            document.getElementById('Gameover-overlay').style.display = 'none';
+
+            // Restart the game
+            // TODO: Bring back to waiting room
+            WaitingRoom.initialize();
+            WaitingRoom.show();
+            socket.emit("get player ready");
+        }
 
         socket.on("connect", () => {
             console.log("websocket connected");
@@ -38,6 +51,8 @@ const Socket = (function() {
         socket.on("add player ready", (_user, _readyUsersCount) => {
             const {user, readyUsersCount} = JSON.parse(_user, _readyUsersCount);
             console.log("adding ready player", user, readyUsersCount);
+            if(user.username!=username) playNewUserReadySound();
+            if(!WaitingRoom.getIfShow()) getBackWaitingRoom();
             WaitingRoom.addUser(user, readyUsersCount);
         });
 
@@ -63,7 +78,14 @@ const Socket = (function() {
 
             const scores = JSON.parse(playerScores);
             updateScoreBoard(scores);
-        })
+        });
+
+        socket.on("player move", (_username) =>{
+            console.log("play emit received");
+            if(username == _username)
+                console.log("to play sound", username);
+                playMoveSound();
+        });
     
         socket.on("player killed", result => {
             var {killedID,killerID} = JSON.parse(result);
@@ -73,9 +95,7 @@ const Socket = (function() {
         })
     
         socket.on("end game", players=>{
-    
             let finalScores = {};
-    
             players.forEach(player => {
                 let armyScore = parseInt(document.getElementById(`${player}Army`).innerText);
                 let landScore = parseInt(document.getElementById(`${player}Land`).innerText);
@@ -87,7 +107,6 @@ const Socket = (function() {
                     kill: killScore
                 };
             });
-    
             // Sort players by kills, then by land
             let sortedPlayers = Object.keys(finalScores).sort((a, b) => {
                 if (finalScores[b].kill === finalScores[a].kill) {
@@ -95,21 +114,16 @@ const Socket = (function() {
                 }
                 return finalScores[b].kill - finalScores[a].kill;
             });
-    
             document.getElementById('scoreBoard').style.display= "none";
-    
             initFinalScoreBoard(document.getElementById('final-ranking'), sortedPlayers, finalScores);
             document.getElementById('Gameover-overlay').style.display= "block";
-            console.log(finalScores);
-    
+            var winner_key = Object.keys(sortedPlayers)[0];
+            var winner_username = sortedPlayers[winner_key];
+            if(winner_username==username) playGameoverSound(true);
+            else playGameoverSound(false);
     
             document.getElementById('replay-button').addEventListener('click', function() {
-                // Hide the game over overlay
-                document.getElementById('Gameover-overlay').style.display = 'none';
-            
-                // Restart the game
-                // TODO: Bring back to waiting room
-                WaitingRoom.initialize();
+                getBackWaitingRoom();
             });
     
         })
@@ -118,6 +132,12 @@ const Socket = (function() {
             payload = JSON.parse(payload);
             console.log("updateplayerready", payload);
             WaitingRoom.update(payload);
+        });
+
+        socket.on("remove player ready", (_user, _readyUsersCount) => {
+            const {user, readyUsersCount} = JSON.parse(_user, _readyUsersCount);
+            console.log("removing player", user, readyUsersCount);
+            WaitingRoom.removeUser(user, readyUsersCount);        
         });
 
         socket.on("start count down", () => {
@@ -188,6 +208,10 @@ const Socket = (function() {
         socket.emit("cheat",cellToChange);
     };
 
+    const disconnect = function(){
+        socket.emit("disconnect");
+    }
+
     const startGame = function(){
         socket.emit("start game");
     };
@@ -196,14 +220,5 @@ const Socket = (function() {
         socket.emit("is game started");
     }
     
-
-    /*const updateReadyUser = function() {
-        console.log("updateReadyUser");
-        if (socket && socket.connected) {
-            console.log("updateReadyUser");
-            socket.emit("get player ready");
-        }
-    };*/
-
-    return { getSocket, connect, addReadyUser, addOperation, cheat, startGame};
+    return { getSocket, connect, addReadyUser, addOperation, cheat, startGame, disconnect};
 })();

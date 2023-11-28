@@ -11,6 +11,7 @@ var onlineUsers = {}
 var readyUsers = {}
 var playingUsers = new Set();
 var readyUsersCount = 0
+var countdownInterval = null
 
 con.io.on("connection", socket => {
 	
@@ -31,7 +32,7 @@ con.io.on("connection", socket => {
 
 	function startGame() {
 		// 1. game started and user is playing
-		const {username} = socket.request.session.user;
+		const {username, avatar, name} = socket.request.session.user;
 		//console.log(gameController.getPlayerList());
 
 		if(gameController.isStarted()&&(gameController.getPlayerList().has(username))&&(!playingUsers.has(username))){
@@ -59,18 +60,17 @@ con.io.on("connection", socket => {
 				gameController.addUser(user,socket);
 				playingUsers.add(user);
 			}
-			//console.log(playingUsers);
+			con.io.emit("update count down", JSON.stringify(15));
 			con.io.emit("hide waiting room");
 			gameController.startGame();
 		} else {
-			console.log(username+":FAIL TO START GAME");
-			// Clear readyUsers list
-			readyUsers = {};
-			readyUsersCount = 0;
-			con.io.emit("update player ready", JSON.stringify({readyUsers: readyUsers,
-				readyUsersCount: readyUsersCount}));
+			console.log("FAIL TO START GAME: LESS THAN TWO PLAYER");
 			con.io.emit("update count down", JSON.stringify(15));
 		}
+		readyUsers = {};
+		readyUsersCount = 0;
+		con.io.emit("update player ready", JSON.stringify({readyUsers: readyUsers,
+			readyUsersCount: readyUsersCount}));
 	}
 
 	socket.on("broadcast add player ready", () => {
@@ -91,12 +91,24 @@ con.io.on("connection", socket => {
 	})
 
 	socket.on("disconnect", () => {
-		if(socket.request.session.user){
-		const {username} = socket.request.session.user;
-		//gameController.removeUser(username);
-		delete onlineUsers[username];
-			playingUsers.delete(username);
-			console.log(username+" disconnected with server");
+		console.log("Disconnect");
+		if (socket.request.session.user){
+			const {username, avatar, name} = socket.request.session.user;
+			//gameController.removeUser(username);
+
+			delete onlineUsers[username];
+			if(username in readyUsers) {
+				console.log("remove player", username);
+				readyUsersCount--;
+				if(readyUsersCount==0 && countdownInterval!=null){
+					clearTimeout(countdownInterval);
+					countdownInterval=null;
+					con.io.emit("update count down", JSON.stringify(15));
+				}
+				con.io.emit("remove player ready", JSON.stringify({user: socket.request.session.user,
+					readyUsersCount: readyUsersCount}));
+				delete readyUsers[username];
+			}
 		}
 	})
 
@@ -113,7 +125,7 @@ con.io.on("connection", socket => {
 	})
 
 	socket.on("trigger count down", () => {
-		gameController.startCountdown();
+		countdownInterval = gameController.startCountdown();
 		console.log("Ready users:", readyUsers, readyUsersCount);
 	})
 

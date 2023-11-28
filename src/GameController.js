@@ -18,6 +18,7 @@ function makeLoop(period, body){
 function GameController(io){
 	let gameMap;
 	let playerList = new Map();
+	let playerUsername = new Map();
 	let playerOperationBuffer = new Map();
 	let playerIDPool = [1,2,3,4,5,6,7,8];
 	let mainTimer, gameEndTimeout;
@@ -26,29 +27,34 @@ function GameController(io){
 	var playingUsers = {};
 
 	function startCountdown() {
-		console.log("starting count down");
+		console.log("starting countdown");
 		let seconds = 15;
+	  
 		// Update countdown display every second
-		var countdownInterval = setInterval(function() {
-			seconds--;
-			io.emit("update count down", seconds);
-		
-			if (seconds <= 0) {
-				clearInterval(countdownInterval);
-				console.log("Countdown finished!");
-				io.emit("prepare start game");
-			}
+		const countdownInterval = setInterval(function() {
+		  seconds--;
+		  io.emit("update count down", seconds);
+	  
+		  if (seconds <= 0) {
+			clearInterval(countdownInterval);
+			console.log("Countdown finished!");
+			io.emit("prepare start game");
+		  }
 		}, 1000);
+	  
+		return countdownInterval; // Return the interval ID
 	}
 
 	function gameIteration(){
-
+		console.log("iterate!");
+		if(mainTimer==null)
+			return;
 		//increase units on map
 		gameMap.growUnits();
 		let Scores = {};
 
 		//execute one operation for each user
-		for(const [playerID, operationList] of playerOperationBuffer){
+		for(const [playerID, operationList] of playerOperationBuffer){			
 			if(operationList.length > 0){
 				const {r1, c1, dir, rate} = operationList.shift();
 				if(!gameMap.checkCell(playerID, r1, c1)){
@@ -58,11 +64,8 @@ function GameController(io){
 				// console.log("player " + playerID + " moving (" + r1 + ", " + c1 + ")");
 				let result = gameMap.moveUnits(r1, c1, dir, rate);
 				if(result==0)
-					sound.play('public/audios/move.wav');
-				else if (result<0)
-					sound.play('public/audios/move_error.wav');
+					io.emit("player move", JSON.stringify(playerUsername[playerID]));
 				if(result > 0){
-					sound.play('public/audios/win.wav');
 					if(!(playerID in Scores)) {
 						Scores[playerID] = {army: 0, land: 0, kill: 0};
 					}
@@ -188,7 +191,11 @@ function GameController(io){
 		mainTimer.stop();
 		clearTimeout(gameEndTimeout);
 		mainTimer = null;
-		
+		for(username in playerList) {
+			myMap.forEach((username, _) => {
+				removeUser(username);
+			  });
+		}
 		io.emit("end game", Array.from(playerList.keys()));
 	}
 

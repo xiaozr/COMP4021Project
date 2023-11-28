@@ -1,4 +1,3 @@
-
 const PlayerID_to_Color2 = {
 	0 : null,
 	1 : "red",
@@ -13,7 +12,7 @@ const PlayerID_to_Color2 = {
 
 function startConnection(){
 	console.log("connecting");
-	Socket.connect();
+	Socket.connect(username);
 	console.log("success connect");
 
 }
@@ -49,7 +48,6 @@ function initScoreBoard(table,players){
 			if (header === "Player") {
 				td.style.backgroundColor = PlayerID_to_Color2[count++]; 
 				td.textContent = player;
-
 			} else {
 				td.textContent = "0";
 			}
@@ -89,7 +87,6 @@ function initFinalScoreBoard(table, players, scores){
     // Create header
     var headers = ["Rank", "Player", "Army", "Land", "Kill"];
     var tr = document.createElement("tr");
-
     headers.forEach(function(header) {
         var th = document.createElement("th");
         th.textContent = header;
@@ -143,6 +140,23 @@ function initFinalScoreBoard(table, players, scores){
     table.style.borderCollapse = 'collapse';
 }
 
+function playMoveSound(){
+    console.log("play move sound!");
+    var move = new Audio('../audios/move.wav');
+    move.play();
+}
+
+function playGameoverSound(_win) {
+    var win = new Audio('../audios/win.wav');
+    var lose = new Audio('../audios/lose.wav');
+    if(_win) win.play();
+    else lose.play();
+}
+
+function playNewUserReadySound() {
+    var ready = new Audio('../audios/ready.wav');
+    ready.play();
+}
 function showToast(message) {
     var toast = document.getElementById("toast");
     toast.className = "show";
@@ -173,7 +187,7 @@ const SignInForm = (function() {
             Authentication.signin(username, password,
                 () => {
                     hide();
-                    Socket.connect();;
+                    Socket.connect(username);;
 					WaitingRoom.show();
 					//socket.emit("add player", username);
                 },
@@ -230,12 +244,23 @@ const WaitingRoom = (function() {
 	// TODO: replace with global variable
 	var seconds = 3; // Initial countdown value
 	const MAX_USER = 8;
+    var ifshow = false;
 
     // This function initializes the UI
     const initialize = function() {
 		$("#waiting-room").hide();
 
+        // Clear the online users area
+        const readyUsersArea = $("#ready-users-area");
+        readyUsersArea.empty();
+		readyUsersArea.append($("<div class='caption'>Ready Users</div>"));
+
 		$("#get-ready").click(function(){
+			console.log("ready clicked");
+			Socket.addReadyUser();
+		});
+
+        $("#get-ready").click(function(){
 			console.log("ready clicked");
 			Socket.addReadyUser();
 		});
@@ -243,7 +268,15 @@ const WaitingRoom = (function() {
 		$("#waiting-sign-out").click(function(){
 			console.log("signout clicked");
 			//TODO: sign out
-		});		
+            Authentication.signout(
+                () => {
+                    Socket.disconnect();
+
+                    hide();
+                    //SignInForm.show();
+                }
+            );
+		});
 	};
 
 	// Function to update the countdown display
@@ -260,13 +293,15 @@ const WaitingRoom = (function() {
 
 	// This function shows the form
 	const show = function(_username) {
-		console.log("show waiting room");
-		$("#waiting-room").fadeIn(500); // show waiting room
-
+		console.log("show");
+		username = _username;
+		$("#waiting-room").fadeIn(500);
+        ifshow = true;
 	};
 
 	const hide = function() {
 		$("#waiting-room").fadeOut(500);
+        ifshow = false;
 	}
 
     // This function updates the ready users panel
@@ -307,21 +342,26 @@ const WaitingRoom = (function() {
 	};
 
     // This function removes a user from the panel
-	const removeUser = function(user) {
-        const onlineUsersArea = $("#online-users-area");
+	const removeUser = function(user, readyUserSize) {
+        console.log("remove user here!", user.username, readyUserSize);
+        const onlineUsersArea = $("#ready-users-area");
 		
 		// Find the user
 		const userDiv = onlineUsersArea.find("#username-" + user.username);
+        console.log(userDiv);
 		
 		// Remove the user
 		if (userDiv.length > 0) userDiv.remove();
+        updateReadyUserCountDisplay(readyUserSize);
 	};
 
     function isGameStarted(){
 		Socket.ifGameStart();
 	}
 
-    return { show, hide, initialize, update, addUser, removeUser, updateCountdownDisplay, isGameStarted};
+    function getIfShow(){return ifshow;}
+
+    return { show, hide, initialize, update, addUser, removeUser, updateCountdownDisplay, isGameStarted, getIfShow};
 })();
 
 const UI = (function() {

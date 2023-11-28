@@ -82,6 +82,18 @@ function initUserManager(app,fs,bcrypt,onlineUsers){
     
     });
 
+    // Handle the /signout endpoint
+    app.get("/signout", (req, res) => {
+
+        //
+        // Deleting req.session.user
+        //
+        delete req.session.user;
+        //
+        // Sending a success response
+        //
+        res.json({ status: "success"});
+    });
 }
 
 module.exports = {initUserManager}

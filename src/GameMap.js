@@ -116,7 +116,7 @@ function GameMap(playerList){
 	 * @param {Number} c1 column of source cell
 	 * @param {Number} dir direction of movement, either 1,2,3,4
 	 * @param {Number} rate rate of units moved.
-	 * @returns 0 if no player is killed, otherwise return that player's ID
+	 * @returns 0 if move success and no player is killed, otherwise return that player's ID
 	 */
 	function moveUnits(r1, c1, dir, rate){
 		const [diff_r, diff_c] = Dir_to_diff[dir];
@@ -124,7 +124,7 @@ function GameMap(playerList){
 		if(!(r2 >= 0 && r2 < rowsCnt && c2 >= 0 && c2 < colsCnt &&
 			staticMap[r2][c2] != MapValueEnum.MOUNTAIN)){
 			console.log("move rejected: unitsmap=" + unitsMap[r1][c1]);
-			return -1;
+			return 0;
 		}
 		let amount = Math.ceil((unitsMap[r1][c1]-1)*rate); // Moving unit amount
 		if(amount <= 0) // Unit=1 cell
@@ -141,7 +141,7 @@ function GameMap(playerList){
 		
 		if(unitsMap[r2][c2] < 0) {					//occupation not succeed
 			unitsMap[r2][c2] = -unitsMap[r2][c2];
-			return -1;
+			return 0;
 		}
 
 		if(staticMap[r2][c2] == MapValueEnum.GENERAL){
