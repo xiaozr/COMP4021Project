@@ -26,7 +26,7 @@ function GameController(io){
 
 	function startCountdown() {
 		console.log("starting count down");
-		let seconds = 3;
+		let seconds = 15;
 		// Update countdown display every second
 		var countdownInterval = setInterval(function() {
 			seconds--;
