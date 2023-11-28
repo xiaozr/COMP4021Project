@@ -141,3 +141,4 @@ const gameMap = (function() {
 
 	return {renderMap, initMap, move, cheat};
 })();
+

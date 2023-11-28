@@ -1,3 +1,4 @@
+
 const Socket = (function() {
 
     // This stores the current Socket.IO socket
@@ -8,15 +9,18 @@ const Socket = (function() {
         return socket;
     };
 	const connect = function() {
-        console.log("in connect!");
+        //console.log("in connect!");
         socket = io();
 
         socket.on("connect", () => {
             console.log("websocket connected");
             socket.emit("get player ready");
+        
+            ifGameStart(); // For come back situation
+            //startGame();
         });
 
-        socket.on("start game", gameMapPayload => {
+        socket.on("init map", gameMapPayload => {
             const {map, players} = JSON.parse(gameMapPayload);
             ({staticMap, unitsMap, playerMap, gameTick} = map);
 
@@ -135,6 +139,23 @@ const Socket = (function() {
             WaitingRoom.hide();
         });
 
+        socket.on("game started", result =>{
+            if(JSON.parse(result))
+                socket.emit("start game");
+        })
+
+        socket.on("show spectator mode reminder", ()=>{
+            document.getElementById('spectator-mode').style.display = "block";
+        })
+
+        socket.on("hide spectator mode reminder,", ()=>{
+            document.getElementById('spectator-mode').style.display = "none";
+        })
+
+        socket.on("illegal operation",()=>{
+            showToast("Operation not allowed in spectator mode!")
+        })
+
         document.addEventListener("keydown", event => {
             console.log("key pressed");
             switch(event.key){
@@ -167,5 +188,22 @@ const Socket = (function() {
         socket.emit("cheat",cellToChange);
     };
 
-    return { getSocket, connect, addReadyUser, addOperation, cheat};
+    const startGame = function(){
+        socket.emit("start game");
+    };
+
+    const ifGameStart = function(){
+        socket.emit("is game started");
+    }
+    
+
+    /*const updateReadyUser = function() {
+        console.log("updateReadyUser");
+        if (socket && socket.connected) {
+            console.log("updateReadyUser");
+            socket.emit("get player ready");
+        }
+    };*/
+
+    return { getSocket, connect, addReadyUser, addOperation, cheat, startGame};
 })();
