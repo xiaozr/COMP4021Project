@@ -297,6 +297,22 @@ table {
 .selected-cell {
     border: 5px solid black;
 }
+.highlight-path {
+    fill: transparent;
+    stroke: #eee;
+    stroke-width: 8;
+    stroke-dasharray: 40;
+    stroke-dashoffset: 80;
+    animation: dash 0.5s linear infinite;
+}
+@keyframes dash {
+    from {
+      stroke-dashoffset: 80;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+}
 
 /* Styles for the score board */
 #scoreBoard {
@@ -320,6 +336,9 @@ table {
     transform: translate(-50%, -50%);
     visibility: hidden;
     color: #eee;
+    -webkit-text-stroke: 1px black;  
+    -webkit-text-fill-color : #eee;
+    font-size: 30px; 
 }
 
 #center-container {

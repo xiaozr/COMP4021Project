@@ -16,7 +16,7 @@ function GameMap(playerList){
 	}
 
 	// letiables & initialization
-	const rowsCnt = 4 + playerList.length, colsCnt = 4 + playerList.length;
+	const rowsCnt = 5 + playerList.length, colsCnt = 5 + playerList.length;
 	const staticMap = utils.generateMatrix(rowsCnt, colsCnt, MapValueEnum.UNKNOWN);
 	const unitsMap = utils.generateMatrix(rowsCnt, colsCnt, 0);
 	const playerMap = utils.generateMatrix(rowsCnt, colsCnt, 0);
@@ -77,6 +77,12 @@ function GameMap(playerList){
 			for(let j = 0;j < colsCnt; j++)
 				if(staticMap[i][j] == MapValueEnum.UNKNOWN)
 					staticMap[i][j] = MapValueEnum.EMPTY;
+		
+		for(let i = 0;i < playerList.length;i ++){
+			fillRandomEmptyCell(staticMap, MapValueEnum.EMPTY, MapValueEnum.BONUS);
+			fillRandomEmptyCell(staticMap, MapValueEnum.EMPTY, MapValueEnum.TRAP);
+			fillRandomEmptyCell(staticMap, MapValueEnum.EMPTY, MapValueEnum.HOLE);
+		}
 	}
 	
 	generateMap(3);

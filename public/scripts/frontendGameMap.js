@@ -41,23 +41,46 @@ const gameMap = (function() {
 		return false;
 	}
 	function showCell(i, j){
-		document.getElementById(`img-${i},${j}`).src = MapValueEnum_to_image[gamemap.staticMap[i][j]];
+		document.getElementById(`img-${i},${j}`).setAttributeNS('http://www.w3.org/1999/xlink','href', MapValueEnum_to_image[gamemap.staticMap[i][j]]);
 		document.getElementById(`span-${i},${j}`).textContent = gamemap.unitsMap[i][j];
 		document.getElementById(`span-${i},${j}`).style.visibility = gamemap.unitsMap[i][j] > 0 ? 'visible' : 'hidden';
 		document.getElementById(`cell-${i},${j}`).style.backgroundColor = PlayerID_to_Color[gamemap.playerMap[i][j]];
 	}
 	function hideCell(i, j){
-		document.getElementById(`img-${i},${j}`).src = gamemap.staticMap[i][j] == '*' ? "imgs/mountain.svg" : "imgs/empty.svg";
+		document.getElementById(`img-${i},${j}`).setAttributeNS('http://www.w3.org/1999/xlink','href', gamemap.staticMap[i][j] == '*' ? "imgs/mountain.svg" : "imgs/empty.svg");
 		document.getElementById(`span-${i},${j}`).style.visibility = 'hidden';
 		document.getElementById(`cell-${i},${j}`).style.backgroundColor = "Grey";
 	}
+	function updateHightlightColor(){
+		if(selectedCell){
+			const {r, c} = selectedCell;
+			const hightlightingPath = document.getElementById('hightlight');
+			if(gamemap.playerMap[r][c] != myPlayerID){
+				hightlightingPath.style.stroke = "black";
+			}
+			else {
+				hightlightingPath.style.stroke = "white";
+			}
+		}
+	}
 
 	function updateSelectedCell(r, c, rate){
+		let hightlightingPath;
 		if(selectedCell){
-			document.getElementById(`cell-${selectedCell.r},${selectedCell.c}`).classList.remove("selected-cell");
+			// document.getElementById(`cell-${selectedCell.r},${selectedCell.c}`).classList.remove("selected-cell");
+			hightlightingPath = document.getElementById('hightlight');
+			document.getElementById(`svg-${selectedCell.r},${selectedCell.c}`).removeChild(hightlightingPath);
+		}
+		else {
+			hightlightingPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+			hightlightingPath.classList.add("highlight-path");
+			hightlightingPath.setAttribute('id', 'hightlight');
+			hightlightingPath.setAttribute('d', 'M 0 0 L 80 0 L 80 80 L 0 80 L 0 0');
 		}
 		selectedCell = {r, c, rate};
-		document.getElementById(`cell-${r},${c}`).classList.add("selected-cell");
+		// document.getElementById(`cell-${r},${c}`).classList.add("selected-cell");
+		document.getElementById(`svg-${r},${c}`).appendChild(hightlightingPath);
+		updateHightlightColor();
 	}
 	
 	function renderMap(staticMap, unitsMap, playerMap) {
@@ -69,6 +92,7 @@ const gameMap = (function() {
 				else
 					hideCell(i, j);
 			}
+		updateHightlightColor();
 	}
 
 	function initMap(staticMap, players){
@@ -83,14 +107,20 @@ const gameMap = (function() {
 			for (let j = 0; j < colCnt; j++) {
 				let cell = document.createElement("td");
 				cell.classList.add("cell");
-	
-				let img = document.createElement("img");
+
+				const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+				svg.setAttribute("width", "80");
+				svg.setAttribute("height", "80");
+				svg.setAttribute('id', `svg-${i},${j}`);
+				cell.appendChild(svg);
+
+				const img = document.createElementNS("http://www.w3.org/2000/svg", "image");
 				img.id = `img-${i},${j}`;
-				img.height = 78;
-				img.width = 78;
-				cell.appendChild(img);
+				img.setAttribute("height", "78");
+				img.setAttribute("width", "78");
+				svg.appendChild(img);
 	
-				let indexSpan = document.createElement("span");
+				const indexSpan = document.createElement("span");
 				indexSpan.classList.add("grid-number");
 				indexSpan.id = `span-${i},${j}`;
 
