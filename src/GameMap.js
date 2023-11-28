@@ -20,6 +20,7 @@ function GameMap(playerList){
 	const staticMap = utils.generateMatrix(rowsCnt, colsCnt, MapValueEnum.UNKNOWN);
 	const unitsMap = utils.generateMatrix(rowsCnt, colsCnt, 0);
 	const playerMap = utils.generateMatrix(rowsCnt, colsCnt, 0);
+	const wormHolePos = [];
 	let gameTick = 0;
 	
 	//generate random map: ensuring generals are all connected.
@@ -81,7 +82,7 @@ function GameMap(playerList){
 		for(let i = 0;i < playerList.length;i ++){
 			fillRandomEmptyCell(staticMap, MapValueEnum.EMPTY, MapValueEnum.BONUS);
 			fillRandomEmptyCell(staticMap, MapValueEnum.EMPTY, MapValueEnum.TRAP);
-			fillRandomEmptyCell(staticMap, MapValueEnum.EMPTY, MapValueEnum.HOLE);
+			wormHolePos.push(fillRandomEmptyCell(staticMap, MapValueEnum.EMPTY, MapValueEnum.HOLE));
 		}
 	}
 	
@@ -111,6 +112,51 @@ function GameMap(playerList){
 				}
 	}
 
+	function moveUnits(r1, c1, r2, c2, amount, is2ndJump){
+		unitsMap[r1][c1] -= amount; // Decrease units from original cell
+		
+		if(playerMap[r2][c2] == playerMap[r1][c1]) {	//moving inside player's land
+			unitsMap[r2][c2] += amount;
+		}
+		else {											//else: occupying new land
+			unitsMap[r2][c2] = amount - unitsMap[r2][c2];
+		
+			if(unitsMap[r2][c2] < 0) {					//occupation not succeed
+				unitsMap[r2][c2] = -unitsMap[r2][c2];
+				return 0;
+			}
+
+			if(staticMap[r2][c2] == MapValueEnum.GENERAL){
+				let re = playerMap[r2][c2];
+				removePlayer(playerMap[r2][c2], playerMap[r1][c1]);
+				staticMap[r2][c2] = MapValueEnum.CITY;
+				return re;
+			}
+			else{
+				playerMap[r2][c2] = playerMap[r1][c1];
+			}
+		}
+		if(unitsMap[r2][c2] == 0){
+			return 0;
+		}
+		if(staticMap[r2][c2] == MapValueEnum.BONUS){
+			unitsMap[r2][c2] *= 2;
+			staticMap[r2][c2] = MapValueEnum.EMPTY;
+			return 0;
+		}
+		else if(staticMap[r2][c2] == MapValueEnum.TRAP){
+			unitsMap[r2][c2] = Math.floor(unitsMap[r2][c2]/2);
+			staticMap[r2][c2] = MapValueEnum.EMPTY;
+			return 0;
+		}
+		else if(staticMap[r2][c2] == MapValueEnum.HOLE && !is2ndJump){
+			const otherHoles = wormHolePos.filter(pos => (pos.x != r2 || pos.y != c2));
+			const idx = Math.floor(Math.random() * otherHoles.length);
+			return moveUnits(r2, c2, otherHoles[idx].x, otherHoles[idx].y, unitsMap[r2][c2], true);
+		}
+		else return 0;
+	}
+
 	/**
 	 * @param {Number} r1 row of source cell
 	 * @param {Number} c1 column of source cell
@@ -118,7 +164,7 @@ function GameMap(playerList){
 	 * @param {Number} rate rate of units moved.
 	 * @returns 0 if move success and no player is killed, otherwise return that player's ID
 	 */
-	function moveUnits(r1, c1, dir, rate){
+	function executeOperation(r1, c1, dir, rate){
 		const [diff_r, diff_c] = Dir_to_diff[dir];
 		let r2 = r1 + diff_r, c2 = c1 + diff_c;
 		if(!(r2 >= 0 && r2 < rowsCnt && c2 >= 0 && c2 < colsCnt &&
@@ -129,31 +175,7 @@ function GameMap(playerList){
 		let amount = Math.ceil((unitsMap[r1][c1]-1)*rate); // Moving unit amount
 		if(amount <= 0) // Unit=1 cell
 			return 0; 
-		
-		unitsMap[r1][c1] -= amount; // Decrease units from original cell
-		
-		if(playerMap[r2][c2] == playerMap[r1][c1]) {	//moving inside player's land
-			unitsMap[r2][c2] += amount;
-			return 0;
-		}
-														//else: occupying new land
-		unitsMap[r2][c2] = amount - unitsMap[r2][c2];
-		
-		if(unitsMap[r2][c2] < 0) {					//occupation not succeed
-			unitsMap[r2][c2] = -unitsMap[r2][c2];
-			return 0;
-		}
-
-		if(staticMap[r2][c2] == MapValueEnum.GENERAL){
-			let re = playerMap[r2][c2];
-			removePlayer(playerMap[r2][c2], playerMap[r1][c1]);
-			staticMap[r2][c2] = MapValueEnum.CITY;
-			return re;
-		}
-		else{
-			playerMap[r2][c2] = playerMap[r1][c1];
-			return 0;
-		}
+		return moveUnits(r1, c1, r2, c2, amount, false);
 	}
 
 	function pack(){
@@ -175,7 +197,7 @@ function GameMap(playerList){
 			staticMap[cell.r1][cell.c1] = MapValueEnum.CITY;
     }
 
-	return {gameTick, pack, growUnits, moveUnits, checkCell, setPlayerAtCell};
+	return {gameTick, pack, growUnits, executeOperation, checkCell, setPlayerAtCell};
 }
 
 module.exports = {GameMap};

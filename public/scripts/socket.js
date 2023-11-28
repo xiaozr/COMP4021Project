@@ -64,8 +64,9 @@ const Socket = (function() {
             // console.log(toStr(staticMap));
             // console.log(toStr(unitsMap));
             // console.log(toStr(playerMap));
-
+            const difference = gameMap.compareMap(staticMap, unitsMap, playerMap);
             gameMap.renderMap(staticMap, unitsMap, playerMap);
+            console.log(JSON.stringify(difference));
         });
 
         socket.on("init score",playerList => {

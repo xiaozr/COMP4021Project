@@ -26,28 +26,28 @@ const gameMap = (function() {
 	const table = document.getElementById("gameMap");
 	
     let rowCnt, colCnt;
-	let gamemap;
+	let storedGameMap;
 
 	let selectedCell;
 	let myPlayerID;
 
 	function isInMap(r, c){
-		return (r >= 0 && r < rowCnt && c >= 0 && c < colCnt && gamemap.staticMap[r][c] != '*');
+		return (r >= 0 && r < rowCnt && c >= 0 && c < colCnt && storedGameMap.staticMap[r][c] != '*');
 	}
 	function checkShow(r, c){
 		for(let [dx, dy] of surrondingLocations)
-			if(isInMap(r+dx, c+dy) && gamemap.playerMap[r+dx][c+dy] == myPlayerID)
+			if(isInMap(r+dx, c+dy) && storedGameMap.playerMap[r+dx][c+dy] == myPlayerID)
 				return true;
 		return false;
 	}
 	function showCell(i, j){
-		document.getElementById(`img-${i},${j}`).setAttributeNS('http://www.w3.org/1999/xlink','href', MapValueEnum_to_image[gamemap.staticMap[i][j]]);
-		document.getElementById(`span-${i},${j}`).textContent = gamemap.unitsMap[i][j];
-		document.getElementById(`span-${i},${j}`).style.visibility = gamemap.unitsMap[i][j] > 0 ? 'visible' : 'hidden';
-		document.getElementById(`cell-${i},${j}`).style.backgroundColor = PlayerID_to_Color[gamemap.playerMap[i][j]];
+		document.getElementById(`img-${i},${j}`).setAttributeNS('http://www.w3.org/1999/xlink','href', MapValueEnum_to_image[storedGameMap.staticMap[i][j]]);
+		document.getElementById(`span-${i},${j}`).textContent = storedGameMap.unitsMap[i][j];
+		document.getElementById(`span-${i},${j}`).style.visibility = storedGameMap.unitsMap[i][j] > 0 ? 'visible' : 'hidden';
+		document.getElementById(`cell-${i},${j}`).style.backgroundColor = PlayerID_to_Color[storedGameMap.playerMap[i][j]];
 	}
 	function hideCell(i, j){
-		document.getElementById(`img-${i},${j}`).setAttributeNS('http://www.w3.org/1999/xlink','href', gamemap.staticMap[i][j] == '*' ? "imgs/mountain.svg" : "imgs/empty.svg");
+		document.getElementById(`img-${i},${j}`).setAttributeNS('http://www.w3.org/1999/xlink','href', storedGameMap.staticMap[i][j] == '*' ? "imgs/mountain.svg" : "imgs/empty.svg");
 		document.getElementById(`span-${i},${j}`).style.visibility = 'hidden';
 		document.getElementById(`cell-${i},${j}`).style.backgroundColor = "Grey";
 	}
@@ -55,7 +55,7 @@ const gameMap = (function() {
 		if(selectedCell){
 			const {r, c} = selectedCell;
 			const hightlightingPath = document.getElementById('hightlight');
-			if(gamemap.playerMap[r][c] != myPlayerID){
+			if(storedGameMap.playerMap[r][c] != myPlayerID){
 				hightlightingPath.style.stroke = "black";
 			}
 			else {
@@ -82,9 +82,30 @@ const gameMap = (function() {
 		document.getElementById(`svg-${r},${c}`).appendChild(hightlightingPath);
 		updateHightlightColor();
 	}
+
+	function compareMap(staticMap, unitsMap, playerMap) {
+		const result = {};
+		for (let i = 0; i < rowCnt; i++)
+			for (let j = 0; j < colCnt; j++){
+				if(playerMap[i][j] != myPlayerID)
+					continue;
+				if(storedGameMap.staticMap[i][j] == MapValueEnum.BONUS && staticMap[i][j] != MapValueEnum.BONUS)
+					result["BONUS"] = true;
+				if(storedGameMap.staticMap[i][j] == MapValueEnum.TRAP && staticMap[i][j] != MapValueEnum.TRAP)
+					result["TRAP"] = true;
+				if(storedGameMap.staticMap[i][j] == MapValueEnum.HOLE && 
+					(unitsMap[i][j] != storedGameMap.unitsMap[i][j] || playerMap[i][j] != storedGameMap.playerMap[i][j]))
+					result["HOLE"] = true;
+				if(storedGameMap.staticMap[i][j] == MapValueEnum.GENERAL && playerMap[i][j] != storedGameMap.playerMap[i][j])
+					result["GENERAL"] = true;
+				if(storedGameMap.staticMap[i][j] == MapValueEnum.CITY && playerMap[i][j] != storedGameMap.playerMap[i][j])
+					result["CITY"] = true;
+			}
+		return result;
+	}
 	
 	function renderMap(staticMap, unitsMap, playerMap) {
-		gamemap = {staticMap, unitsMap, playerMap};
+		storedGameMap = {staticMap, unitsMap, playerMap};
 		for (let i = 0; i < rowCnt; i++)
 			for (let j = 0; j < colCnt; j++){
 				if(myPlayerID == null || checkShow(i, j))
@@ -166,9 +187,9 @@ const gameMap = (function() {
 		Socket.cheat(cellToChange);
 		
 		const toStr = mat => mat.map(x => x.join("")).join("\n");
-		console.log(toStr(gamemap.playerMap));
+		console.log(toStr(storedGameMap.playerMap));
 	}
 
-	return {renderMap, initMap, move, cheat};
+	return {renderMap, initMap, move, cheat, compareMap};
 })();
 

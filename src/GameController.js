@@ -46,7 +46,6 @@ function GameController(io){
 	}
 
 	function gameIteration(){
-		console.log("iterate!");
 		if(mainTimer==null)
 			return;
 		//increase units on map
@@ -62,7 +61,7 @@ function GameController(io){
 					continue;
 				}
 				// console.log("player " + playerID + " moving (" + r1 + ", " + c1 + ")");
-				let result = gameMap.moveUnits(r1, c1, dir, rate);
+				let result = gameMap.executeOperation(r1, c1, dir, rate);
 				if(result==0)
 					io.emit("player move", JSON.stringify(playerUsername[playerID]));
 				if(result > 0){
@@ -200,8 +199,8 @@ function GameController(io){
 	}
 
 	function addOperation(username, operation){
-		console.log("user " + username + " add operation");
-		console.log(playerList);
+		// console.log("user " + username + " add operation");
+		// console.log(playerList);
 		if(playerList.has(username)){
 			playerOperationBuffer.get(playerList.get(username)).push(operation);
 			return true;
