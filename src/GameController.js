@@ -6,11 +6,12 @@ function makeLoop(period, body){
 	let timer;
 	function f() {
 		body();
-		timer = setTimeout(f, period);
+		if(timer)
+			timer = setTimeout(f, period);
 	}
 	return {
 		start: () => { timer = setTimeout(f, period); },
-		stop: () => { clearTimeout(timer); }
+		stop: () => { clearTimeout(timer); timer = null;}
 	};
 }
 
@@ -53,7 +54,7 @@ function GameController(io){
 					operationList.length = 0;
 					continue;
 				}
-				console.log("player " + playerID + " moving (" + r1 + ", " + c1 + ")");
+				// console.log("player " + playerID + " moving (" + r1 + ", " + c1 + ")");
 				let result = gameMap.moveUnits(r1, c1, dir, rate);
 				if(result==0)
 					sound.play('public/audios/move.wav');
@@ -169,7 +170,6 @@ function GameController(io){
 		io.emit("start game", JSON.stringify({map: gameMap.pack(), players: Object.fromEntries(playerList)}));
 		io.emit("init score",Array.from(playerList.keys()));
 
-		const updatePeriod = 500; 
 		mainTimer = makeLoop(updatePeriod, gameIteration); // Update game every 0.5 seconds
 
 		mainTimer.start();
@@ -184,7 +184,7 @@ function GameController(io){
 		clearTimeout(gameEndTimeout);
 		mainTimer = null;
 		
-		io.emit("end game",Array.from(playerList.keys()));
+		io.emit("end game", Array.from(playerList.keys()));
 	}
 
 	function addOperation(username, operation){

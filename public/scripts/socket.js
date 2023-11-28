@@ -139,13 +139,11 @@ const Socket = (function() {
             console.log("key pressed");
             switch(event.key){
                 case 'w': //"w"
-                    gameMap.move(0); break;
                 case 'a': //"a"
-                    gameMap.move(1); break;
                 case 's': //"s"
-                    gameMap.move(2); break;
                 case 'd': //"d"
-                    gameMap.move(3); break;
+                    gameMap.move(Key_to_Dir[event.key]); 
+                    break;
                 case 'c':
                     gameMap.cheat();
                 default:
