@@ -59,8 +59,8 @@ con.io.on("connection", socket => {
 			//console.log(playingUsers);
 			con.io.emit("hide waiting room");
 			gameController.startGame();
-		} else {
-			console.log(username+":FAIL TO START GAME");
+		} else if (readyUsersCount<2){
+			console.log(username+":FAIL TO START GAME (Not enough players)");
 			// Clear readyUsers list
 			readyUsers = {};
 			readyUsersCount = 0;
@@ -68,6 +68,8 @@ con.io.on("connection", socket => {
 				readyUsersCount: readyUsersCount}));
 			con.io.emit("update count down", JSON.stringify(15));
 		}
+		else
+			console.log(username+":FAIL TO START GAME");
 	}
 
 	function checkReadyUsersCount() {
@@ -117,8 +119,10 @@ con.io.on("connection", socket => {
 
 	socket.on("add operation", payload => {
 		const {username} = socket.request.session.user;
-		if(!gameController.addOperation(username, JSON.parse(payload)));
+		if(!gameController.addOperation(username, JSON.parse(payload))){
 			socket.emit("illegal operation");
+		}
+			
 	})
 
 	socket.on("trigger count down", () => {

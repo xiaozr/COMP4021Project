@@ -201,9 +201,11 @@ function GameController(io){
 
 	function addOperation(username, operation){
 		console.log("user " + username + " add operation");
-		if(playerList.has(username))
+		console.log(playerList);
+		if(playerList.has(username)){
 			playerOperationBuffer.get(playerList.get(username)).push(operation);
-		else{
+			return true;
+		}else{
 			console.log(username+":Operation not allowed!");
 			return false;
 		}
