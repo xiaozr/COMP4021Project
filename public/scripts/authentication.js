@@ -68,7 +68,7 @@ const Authentication = (function() {
                 onError(json.error);
         })
         // E. Handling the success response from the server
-        .catch((err) => {
+        .catch((error) => {
             console.log("Error!");
         });
 

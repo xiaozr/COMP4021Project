@@ -19,12 +19,10 @@ const PlayerID_to_Color = {
 
 let selectedCell;
 
-function start(){
-
+function startConnection(){
 	console.log("connecting");
 	Socket.connect();
 	console.log("success connect");
-
 }
 
 
@@ -80,6 +78,7 @@ function updateMap(staticMap, unitsMap, playerMap, rowCnt, colCnt) {
 		}
 }
 
+let nameList;
 function initScoreBoard(table,players){
 
 	// Create header
@@ -99,6 +98,9 @@ function initScoreBoard(table,players){
 
 	let count = 1;
 	players.forEach(function(player) {
+
+		nameList[player] = count;
+
 		var tr = document.createElement("tr");
 	  
 		headers.forEach(function(header) {
@@ -130,15 +132,19 @@ function initScoreBoard(table,players){
 
 function updateScoreBoard(scores){
 
-    // Iterate over the players in the scores dictionary
-    for(let player in scores) {
-        // Update their score in the table
-        document.getElementById(`${nameList[player - 1]}Army`).innerText = scores[player].army;
-        document.getElementById(`${nameList[player - 1]}Land`).innerText = scores[player].land;
-    let kills = parseInt(document.getElementById(`${nameList[player - 1]}Kill`).innerText);
-		document.getElementById(`${nameList[player - 1]}Kill`).innerText = scores[player].kill+kills;
-    }    
+	if(nameList){
+		// Iterate over the players in the scores dictionary
+		for(let player in scores) {
+			// Update their score in the table
+			document.getElementById(`${nameList[player - 1]}Army`).innerText = scores[player].army;
+			document.getElementById(`${nameList[player - 1]}Land`).innerText = scores[player].land;
+		let kills = parseInt(document.getElementById(`${nameList[player - 1]}Kill`).innerText);
+			document.getElementById(`${nameList[player - 1]}Kill`).innerText = scores[player].kill+kills;
+		}    
+	}
+
 }
+
 
 function initFinalScoreBoard(table, players, scores){
     // Create header
@@ -198,6 +204,13 @@ function initFinalScoreBoard(table, players, scores){
     table.style.borderCollapse = 'collapse';
 }
 
+function showToast(message) {
+    var toast = document.getElementById("toast");
+    toast.className = "show";
+    toast.innerText = message;
+    setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
+}
+
 
 const SignInForm = (function() {
     // This function initializes the UI
@@ -221,12 +234,7 @@ const SignInForm = (function() {
             Authentication.signin(username, password,
                 () => {
                     hide();
-                    //UserPanel.update(Authentication.getUser());
-                    //UserPanel.show();
-					
-
-					start();
-					console.log("goood");
+					Socket.connect();;
 					WaitingRoom.show();
 					//socket.emit("add player", username);
                 },
@@ -313,10 +321,9 @@ const WaitingRoom = (function() {
 
 	// This function shows the form
 	const show = function(_username) {
-		console.log("show");
-		username = _username;
-		$("#waiting-room").fadeIn(500);
-		Socket.updateReadyUser();
+		console.log("show waiting room");
+		$("#waiting-room").fadeIn(500); // show waiting room
+
 	};
 
 	const hide = function() {
@@ -371,7 +378,11 @@ const WaitingRoom = (function() {
 		if (userDiv.length > 0) userDiv.remove();
 	};
 
-    return { show, hide, initialize, update, addUser, removeUser, updateCountdownDisplay};
+	function isGameStarted(){
+		Socket.ifGameStart();
+	}
+
+    return { show, hide, initialize, update, addUser, removeUser, updateCountdownDisplay, isGameStarted};
 })();
 
 const UI = (function() {
