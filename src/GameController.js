@@ -22,6 +22,7 @@ function GameController(io){
 	let mainTimer, gameEndTimeout;
 	let gameTime = 210000;
 	let playerKilled;
+	var playingUsers = {};
 
 	function startCountdown() {
 		console.log("starting count down");
@@ -138,13 +139,17 @@ function GameController(io){
 		if(playerIDPool.length <= 0){
 			return false;
 		}
-		const userPlayerID = playerIDPool.shift();
-		playerList.set(username, userPlayerID);
-		playerOperationBuffer.set(userPlayerID, []);
-		console.log("add " + username + " as player " + userPlayerID);
-		console.log("Joined Game users: ["+ [...playerList.keys()] +"]");
-		if(isStarted()){
-			socket.emit("start game", JSON.stringify({map: gameMap.pack(), players: Object.fromEntries(playerList)}));
+		if(!(playerList.has(username))){
+			const userPlayerID = playerIDPool.shift();
+			playerList.set(username, userPlayerID);
+			playerOperationBuffer.set(userPlayerID, []);
+			console.log("add " + username + " as player " + userPlayerID);
+			console.log("Joined Game users: ["+ [...playerList.keys()] +"]");
+		}
+
+		if(isStarted() && !(playerList.has(username))){
+			console.log(username + " Come back init");
+			socket.emit("init map", gameMap.toPayload());
 			socket.emit("init score",Array.from(playerList.keys()));
 		}
 		return true;
@@ -166,7 +171,7 @@ function GameController(io){
 
 		gameMap = gameMapConstructor.GameMap(Array.from(playerList.values()));
 
-		io.emit("start game", JSON.stringify({map: gameMap.pack(), players: Object.fromEntries(playerList)}));
+		io.emit("init map", JSON.stringify({map: gameMap.pack(), players: Object.fromEntries(playerList)}));
 		io.emit("init score",Array.from(playerList.keys()));
 
 		const updatePeriod = 500; 
@@ -189,7 +194,15 @@ function GameController(io){
 
 	function addOperation(username, operation){
 		console.log("user " + username + " add operation");
-		playerOperationBuffer.get(playerList.get(username)).push(operation);
+		console.log(playerList);
+		if(playerList.has(username)){
+			playerOperationBuffer.get(playerList.get(username)).push(operation);
+			return true;
+		}else{
+			console.log(username+":Operation not allowed!");
+			return false;
+		}
+			
 	}
 
 	function cheatOnCell(username, cellToChange){
@@ -204,7 +217,11 @@ function GameController(io){
 		return playerList;
 	}
 
-	return {isStarted, addUser, removeUser, startGame, endGame, addOperation, clearOperationBuffer,getPlayerList, startCountdown, cheatOnCell};
+	function getGameMapPayLoad(){
+		return gameMap.toPayload();
+	}
+
+	return {isStarted, addUser, removeUser, startGame, endGame, addOperation, clearOperationBuffer,getPlayerList, startCountdown, cheatOnCell,getGameMapPayLoad};
 }
 
 module.exports = {GameController};

@@ -5,5 +5,5 @@ To executed:
 * Start server: `node GeneralsServer.js`
 * Goto `localhost:8000`
 
-Note:
-* Game start when 3 users sign in the game (see line 47, GeneralsServer.js)
+Cheat mode:
+* Press 'c' and click on the desired cell to change it to your land with 100 units of army.
