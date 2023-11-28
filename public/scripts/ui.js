@@ -1,5 +1,5 @@
 
-const PlayerID_to_Color = {
+const PlayerID_to_Color2 = {
 	0 : null,
 	1 : "red",
 	2 : "blue",
@@ -47,7 +47,7 @@ function initScoreBoard(table,players){
 			td.id = player + header; // "example: tonyArmy, stevenLand"
 
 			if (header === "Player") {
-				td.style.backgroundColor = PlayerID_to_Color[count++]; 
+				td.style.backgroundColor = PlayerID_to_Color2[count++]; 
 				td.textContent = player;
 
 			} else {

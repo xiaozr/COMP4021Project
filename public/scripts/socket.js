@@ -1,3 +1,4 @@
+
 const Socket = (function() {
 
     // This stores the current Socket.IO socket
