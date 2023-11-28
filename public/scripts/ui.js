@@ -1,7 +1,7 @@
-function start(){
+function start(username){
 
 	console.log("connecting");
-	Socket.connect();
+	Socket.connect(username);
 	console.log("success connect");
 
 }
@@ -34,7 +34,6 @@ function initScoreBoard(table,players){
 			if (header === "Player") {
 				td.style.backgroundColor = PlayerID_to_Color[count++]; 
 				td.textContent = player;
-
 			} else {
 				td.textContent = "0";
 			}
@@ -68,7 +67,6 @@ function initFinalScoreBoard(table, players, scores){
     // Create header
     var headers = ["Rank", "Player", "Army", "Land", "Kill"];
     var tr = document.createElement("tr");
-
     headers.forEach(function(header) {
         var th = document.createElement("th");
         th.textContent = header;
@@ -122,6 +120,19 @@ function initFinalScoreBoard(table, players, scores){
     table.style.borderCollapse = 'collapse';
 }
 
+function playMoveSound(){
+    console.log("play move sound!");
+    var move = new Audio('../audios/move.wav');
+    move.play();
+}
+
+function playGameoverSound(_win) {
+    var win = new Audio('../audios/win.wav');
+    var lose = new Audio('../audios/lose.wav');
+    if(_win) win.play();
+    else lose.play();
+}
+
 const SignInForm = (function() {
     // This function initializes the UI
     const initialize = function() {
@@ -148,7 +159,7 @@ const SignInForm = (function() {
                     //UserPanel.show();
 					
 
-					start();
+					start(username);
 					console.log("goood");
 					WaitingRoom.show();
 					//socket.emit("add player", username);
@@ -211,7 +222,17 @@ const WaitingRoom = (function() {
     const initialize = function() {
 		$("#waiting-room").hide();
 
+        // Clear the online users area
+        const readyUsersArea = $("#ready-users-area");
+        readyUsersArea.empty();
+		readyUsersArea.append($("<div class='caption'>Ready Users</div>"));
+
 		$("#get-ready").click(function(){
+			console.log("ready clicked");
+			Socket.addReadyUser();
+		});
+
+        $("#get-ready").click(function(){
 			console.log("ready clicked");
 			Socket.addReadyUser();
 		});
@@ -219,7 +240,15 @@ const WaitingRoom = (function() {
 		$("#waiting-sign-out").click(function(){
 			console.log("signout clicked");
 			//TODO: sign out
-		});		
+            Authentication.signout(
+                () => {
+                    Socket.disconnect();
+
+                    hide();
+                    //SignInForm.show();
+                }
+            );
+		});
 	};
 
 	// Function to update the countdown display
@@ -239,7 +268,7 @@ const WaitingRoom = (function() {
 		console.log("show");
 		username = _username;
 		$("#waiting-room").fadeIn(500);
-		Socket.updateReadyUser();
+		//Socket.updateReadyUser();
 	};
 
 	const hide = function() {
@@ -284,14 +313,17 @@ const WaitingRoom = (function() {
 	};
 
     // This function removes a user from the panel
-	const removeUser = function(user) {
-        const onlineUsersArea = $("#online-users-area");
+	const removeUser = function(user, readyUserSize) {
+        console.log("remove user here!", user.username, readyUserSize);
+        const onlineUsersArea = $("#ready-users-area");
 		
 		// Find the user
 		const userDiv = onlineUsersArea.find("#username-" + user.username);
+        console.log(userDiv);
 		
 		// Remove the user
 		if (userDiv.length > 0) userDiv.remove();
+        updateReadyUserCountDisplay(readyUserSize);
 	};
 
     return { show, hide, initialize, update, addUser, removeUser, updateCountdownDisplay};

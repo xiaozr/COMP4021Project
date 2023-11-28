@@ -37,16 +37,17 @@ con.io.on("connection", socket => {
 			for (user in readyUsers) {
 				gameController.addUser(user);
 			}
+			con.io.emit("update count down", JSON.stringify(15));
 			con.io.emit("hide waiting room");
 			gameController.startGame();
 		} else {
 			console.log("FAIL TO START GAME: LESS THAN TWO PLAYER");
-			readyUsers = {};
-			readyUsersCount = 0;
-			con.io.emit("update player ready", JSON.stringify({readyUsers: readyUsers,
-				readyUsersCount: readyUsersCount}));
-			con.io.emit("update count down", JSON.stringify(10));
+			con.io.emit("update count down", JSON.stringify(15));
 		}
+		readyUsers = {};
+		readyUsersCount = 0;
+		con.io.emit("update player ready", JSON.stringify({readyUsers: readyUsers,
+			readyUsersCount: readyUsersCount}));
 	}
 
 	socket.on("broadcast add player ready", () => {
@@ -67,12 +68,20 @@ con.io.on("connection", socket => {
 	})
 
 	socket.on("disconnect", () => {
-		console.log("Refresh");
+		console.log("Disconnect");
 		if (socket.request.session.user){
-		const {username} = socket.request.session.user;
-		gameController.removeUser(username);
+			const {username, avatar, name} = socket.request.session.user;
+			//gameController.removeUser(username);
 
-		delete onlineUsers[username];}
+			delete onlineUsers[username];
+			if(username in readyUsers) {
+				console.log("remove player", username);
+				readyUsersCount--;
+				con.io.emit("remove player ready", JSON.stringify({user: socket.request.session.user,
+					readyUsersCount: readyUsersCount}));
+				delete readyUsers[username];
+			}
+		}
 	})
 
 	socket.on("start game", () => {
