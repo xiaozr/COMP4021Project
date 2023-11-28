@@ -26,7 +26,7 @@ function GameController(io){
 
 	function startCountdown() {
 		console.log("starting count down");
-		let seconds = 15;
+		let seconds = 3;
 		// Update countdown display every second
 		var countdownInterval = setInterval(function() {
 			seconds--;
@@ -44,8 +44,8 @@ function GameController(io){
 
 		//increase units on map
 		gameMap.growUnits();
-		let Scores = {};
 
+		let Scores = {};
 		//execute one operation for each user
 		for(const [playerID, operationList] of playerOperationBuffer){
 			if(operationList.length > 0){
@@ -206,7 +206,9 @@ function GameController(io){
 	}
 
 	function cheatOnCell(username, cellToChange){
-		gameMap.setPlayerAtCell(playerList.get(username), cellToChange);
+		
+		const playerID = playerList.get(username);
+		gameMap.setPlayerAtCell(playerID, cellToChange);
 	}
 
 	function clearOperationBuffer(username){

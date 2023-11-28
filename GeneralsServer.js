@@ -119,6 +119,10 @@ con.io.on("connection", socket => {
 
 	socket.on("cheat", cell=>{
 		const {username} = socket.request.session.user;
+		const {staticMap} = gameController.getGameMapPayLoad();
+		const {r1,c1} = cell;
+		if(staticMap[r1][c1]=='$')
+			socket.emit("increase kill",username);
 		gameController.cheatOnCell(username,cell);
 	})
 

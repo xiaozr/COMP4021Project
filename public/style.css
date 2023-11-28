@@ -230,9 +230,10 @@ button.icon:active {
     height: 80px;
     width: 190px;
     align-self: stretch;
-    background: linear-gradient(to bottom, #191818, #6d6b6b);
+    background: linear-gradient(to bottom, rgb(52, 159, 253), rgb(152, 200, 255));
     border-radius: 10px;
     box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    
 }
 #ready-users-area {
     flex-grow: 1;
@@ -427,11 +428,7 @@ table {
 }
 }
 
-#replay-button {
-    font-size: 1.5em;
-    padding: 10px;
-    margin-top: 1em;
-}
+
 
 #get-ready{
     font-size: 24px;
@@ -462,6 +459,21 @@ table {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+}
+
+#final-ranking {
+    width: 50%; /* Set the width of the table to 100% of its container */
+    height: 200px; /* Set the height of the table to 500 pixels */
+    margin-top: 40px;
+    font-size: 30px;
+}
+
+#replay-button {
+    width: 15%;
+    height: 10%;
+    font-size: 30px;
+    padding: 5px;
+    margin-top: 100px;
 }
 
 #spectator-mode {

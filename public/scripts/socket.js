@@ -153,7 +153,12 @@ const Socket = (function() {
         })
 
         socket.on("illegal operation",()=>{
-            showToast("Operation not allowed in spectator mode!")
+            showToast("Operation not allowed in spectator mode!");
+        })
+
+        socket.on("increase kill",(username)=>{
+            //const {username} = socket.request.session.user;
+            document.getElementById(`${username}Kill`).innerText = parseInt(document.getElementById(`${username}Kill`).innerText)+1;
         })
 
         document.addEventListener("keydown", event => {
