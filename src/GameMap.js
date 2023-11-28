@@ -1,11 +1,6 @@
 const utils = require('./utils');
-const MapValueEnum = {
-	EMPTY: '.',
-	MOUNTAIN: '*',
-	GENERAL: '$',
-	CITY: '#',
-	UNKNOWN: ' '
-};
+const {MapValueEnum, Dir_to_diff} = require("../public/shared/conventions")
+
 const unitGrowthRatioLow = 20, unitGrowthRatioHigh = 2;
 
 function GameMap(playerList){
@@ -118,13 +113,8 @@ function GameMap(playerList){
 	 * @returns 0 if no player is killed, otherwise return that player's ID
 	 */
 	function moveUnits(r1, c1, dir, rate){
-		let r2, c2;
-		switch(dir) {
-			case 0:	r2 = r1-1;	c2 = c1;	break;	//UP
-			case 1:	r2 = r1; 	c2 = c1-1;	break;	//LEFT
-			case 2:	r2 = r1+1; 	c2 = c1;	break;	//DOWN
-			case 3:	r2 = r1; 	c2 = c1+1;	break;	//RIGHT
-		}
+		const [diff_r, diff_c] = Dir_to_diff[dir];
+		let r2 = r1 + diff_r, c2 = c1 + diff_c;
 		if(!(r2 >= 0 && r2 < rowsCnt && c2 >= 0 && c2 < colsCnt &&
 			staticMap[r2][c2] != MapValueEnum.MOUNTAIN)){
 			console.log("move rejected: unitsmap=" + unitsMap[r1][c1]);

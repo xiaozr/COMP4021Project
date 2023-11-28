@@ -1,10 +1,3 @@
-const MapValueEnum_to_image = {
-	'*': "imgs/mountain.svg", 	//mountains
-	'$': "imgs/general.svg", 	//generals
-	'#': "imgs/city.svg", 		//cities
-	'.': "imgs/empty.svg" 		//empty space	
-};
-
 const PlayerID_to_Color = {
 	0 : null,
 	1 : "red",
@@ -123,18 +116,9 @@ const gameMap = (function() {
 		if(!selectedCell)
             return ;
         let {r, c, rate} = selectedCell;
-		switch(dir){
-			case 0: //"w"
-				r -= 1; break;
-			case 1: //"a"
-				c -= 1; break;
-			case 2: //"s"
-				r += 1; break;
-			case 3: //"d"
-				c += 1; break;
-			default:
-				return ;
-		};
+		let [dr, dc] = Dir_to_diff[dir];
+		r += dr;
+		c += dc;
 		if(!isInMap(r, c)){
 			return ;
 		};
