@@ -26,7 +26,7 @@ const gameMap = (function() {
 	const table = document.getElementById("gameMap");
 	
     let rowCnt, colCnt;
-	let storedGameMap;
+	let storedGameMap, playerList;
 
 	let selectedCell;
 	let myPlayerID;
@@ -94,7 +94,7 @@ const gameMap = (function() {
 				if(storedGameMap.staticMap[i][j] == MapValueEnum.TRAP && staticMap[i][j] != MapValueEnum.TRAP)
 					result["TRAP"] = true;
 				if(storedGameMap.staticMap[i][j] == MapValueEnum.HOLE && 
-					(unitsMap[i][j] != storedGameMap.unitsMap[i][j] || playerMap[i][j] != storedGameMap.playerMap[i][j]))
+					(unitsMap[i][j] > storedGameMap.unitsMap[i][j] || playerMap[i][j] != storedGameMap.playerMap[i][j]))
 					result["HOLE"] = true;
 				if(storedGameMap.staticMap[i][j] == MapValueEnum.GENERAL && playerMap[i][j] != storedGameMap.playerMap[i][j])
 					result["GENERAL"] = true;

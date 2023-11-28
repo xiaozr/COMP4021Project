@@ -157,6 +157,21 @@ function playNewUserReadySound() {
     var ready = new Audio('../audios/ready.wav');
     ready.play();
 }
+
+function playItemSound(result) {
+    if(result.GENERAL)
+        (new Audio('../audios/general.wav')).play();
+    else if(result.CITY)
+        (new Audio('../audios/city.wav')).play();
+    else if(result.HOLE)
+        (new Audio('../audios/hole.wav')).play();
+    else if(result.TRAP)
+        (new Audio('../audios/trap.wav')).play();
+    else if(result.BONUS)
+        (new Audio('../audios/bonus.wav')).play();
+}
+
+
 function showToast(message) {
     var toast = document.getElementById("toast");
     toast.className = "show";

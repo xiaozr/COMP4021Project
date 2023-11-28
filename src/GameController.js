@@ -113,13 +113,14 @@ function GameController(io){
 			}
 		  }
 		}
+
+		io.emit("update map", JSON.stringify(gameMap.pack()));
+		io.emit("update score", JSON.stringify(Scores));
+		
 		if(remainUsers.size==2&&mainTimer)
 			endGame();
 
 		//console.log("remain players: "+remainUsers.size);
-
-		io.emit("update map", JSON.stringify(gameMap.pack()));
-		io.emit("update score", JSON.stringify(Scores));
 
 		return Scores;
 	}
