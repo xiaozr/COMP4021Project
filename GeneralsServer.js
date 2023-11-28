@@ -41,7 +41,7 @@ con.io.on("connection", socket => {
 			//gameController.resumeGame();
 			socket.emit("hide waiting room");
 			//gameController.addUser(username,socket);
-			socket.emit("init map", gameController.getGameMapPayLoad());
+			socket.emit("init map", JSON.stringify({map: gameController.getGameMapPayLoad(), players: Object.fromEntries(gameController.getPlayerList())}));
 			socket.emit("init score",Array.from(gameController.getPlayerList().keys()));
 
 		} 
@@ -106,8 +106,10 @@ con.io.on("connection", socket => {
 
 	socket.on("add operation", payload => {
 		const {username} = socket.request.session.user;
-		if(!gameController.addOperation(username, JSON.parse(payload)));
+		if(!gameController.addOperation(username, JSON.parse(payload))){
 			socket.emit("illegal operation");
+		}
+			
 	})
 
 	socket.on("trigger count down", () => {

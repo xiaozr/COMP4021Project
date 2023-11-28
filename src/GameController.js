@@ -149,7 +149,7 @@ function GameController(io){
 
 		if(isStarted() && !(playerList.has(username))){
 			console.log(username + " Come back init");
-			socket.emit("init map", gameMap.toPayload());
+			socket.emit("init map", JSON.stringify(gameMap.pack()));
 			socket.emit("init score",Array.from(playerList.keys()));
 		}
 		return true;
@@ -218,7 +218,7 @@ function GameController(io){
 	}
 
 	function getGameMapPayLoad(){
-		return gameMap.toPayload();
+		return gameMap.pack();
 	}
 
 	return {isStarted, addUser, removeUser, startGame, endGame, addOperation, clearOperationBuffer,getPlayerList, startCountdown, cheatOnCell,getGameMapPayLoad};
