@@ -75,7 +75,10 @@ const gameMap = (function() {
 			hightlightingPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
 			hightlightingPath.classList.add("highlight-path");
 			hightlightingPath.setAttribute('id', 'hightlight');
-			hightlightingPath.setAttribute('d', 'M 0 0 L 80 0 L 80 80 L 0 80 L 0 0');
+			hightlightingPath.setAttribute('stroke-width', Math.floor(cellSize/10).toString());
+			hightlightingPath.setAttribute('stroke-dasharray', Math.floor(cellSize/2).toString());
+			hightlightingPath.setAttribute('stroke-dashoffset', cellSize.toString());
+			hightlightingPath.setAttribute('d', `M 0 0 L ${cellSize} 0 L ${cellSize} ${cellSize} L 0 ${cellSize} L 0 0`);
 		}
 		selectedCell = {r, c, rate};
 		// document.getElementById(`cell-${r},${c}`).classList.add("selected-cell");
@@ -128,21 +131,24 @@ const gameMap = (function() {
 			for (let j = 0; j < colCnt; j++) {
 				let cell = document.createElement("td");
 				cell.classList.add("cell");
+				cell.setAttribute("width", cellSize.toString());
+				cell.setAttribute("height", cellSize.toString());
 
 				const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-				svg.setAttribute("width", "80");
-				svg.setAttribute("height", "80");
+				svg.setAttribute("width", cellSize.toString());
+				svg.setAttribute("height", cellSize.toString());
 				svg.setAttribute('id', `svg-${i},${j}`);
 				cell.appendChild(svg);
 
 				const img = document.createElementNS("http://www.w3.org/2000/svg", "image");
 				img.id = `img-${i},${j}`;
-				img.setAttribute("height", "78");
-				img.setAttribute("width", "78");
+				img.setAttribute("height", (cellSize-2).toString());
+				img.setAttribute("width", (cellSize-2).toString());
 				svg.appendChild(img);
 	
 				const indexSpan = document.createElement("span");
 				indexSpan.classList.add("grid-number");
+				indexSpan.setAttribute("font-size", Math.max(cellSize-15, 30).toString());
 				indexSpan.id = `span-${i},${j}`;
 
 				cell.appendChild(indexSpan);
