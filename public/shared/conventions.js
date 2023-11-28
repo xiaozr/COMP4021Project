@@ -14,9 +14,9 @@ const MapValueEnum_to_image = {
 	'$': "imgs/general.svg", 	
 	'#': "imgs/city.svg", 		
 	'.': "imgs/empty.svg",		
-	'b': "imgs/bonus.svg", 		
-	't': "imgs/trap.svg", 		
-	'h': "imgs/hole.svg", 		
+	'B': "imgs/bonus.svg", 		
+	'T': "imgs/trap.svg", 		
+	'H': "imgs/hole.svg", 		
 };
 
 const Key_to_Dir = {
