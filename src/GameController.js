@@ -27,19 +27,22 @@ function GameController(io){
 	var playingUsers = {};
 
 	function startCountdown() {
-		console.log("starting count down");
+		console.log("starting countdown");
 		let seconds = 15;
+	  
 		// Update countdown display every second
-		var countdownInterval = setInterval(function() {
-			seconds--;
-			io.emit("update count down", seconds);
-		
-			if (seconds <= 0) {
-				clearInterval(countdownInterval);
-				console.log("Countdown finished!");
-				io.emit("prepare start game");
-			}
+		const countdownInterval = setInterval(function() {
+		  seconds--;
+		  io.emit("update count down", seconds);
+	  
+		  if (seconds <= 0) {
+			clearInterval(countdownInterval);
+			console.log("Countdown finished!");
+			io.emit("prepare start game");
+		  }
 		}, 1000);
+	  
+		return countdownInterval; // Return the interval ID
 	}
 
 	function gameIteration(){

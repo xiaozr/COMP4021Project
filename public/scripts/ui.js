@@ -153,6 +153,10 @@ function playGameoverSound(_win) {
     else lose.play();
 }
 
+function playNewUserReadySound() {
+    var ready = new Audio('../audios/ready.wav');
+    ready.play();
+}
 function showToast(message) {
     var toast = document.getElementById("toast");
     toast.className = "show";
@@ -240,6 +244,7 @@ const WaitingRoom = (function() {
 	// TODO: replace with global variable
 	var seconds = 3; // Initial countdown value
 	const MAX_USER = 8;
+    var ifshow = false;
 
     // This function initializes the UI
     const initialize = function() {
@@ -291,10 +296,12 @@ const WaitingRoom = (function() {
 		console.log("show");
 		username = _username;
 		$("#waiting-room").fadeIn(500);
+        ifshow = true;
 	};
 
 	const hide = function() {
 		$("#waiting-room").fadeOut(500);
+        ifshow = false;
 	}
 
     // This function updates the ready users panel
@@ -352,7 +359,9 @@ const WaitingRoom = (function() {
 		Socket.ifGameStart();
 	}
 
-    return { show, hide, initialize, update, addUser, removeUser, updateCountdownDisplay, isGameStarted};
+    function getIfShow(){return ifshow;}
+
+    return { show, hide, initialize, update, addUser, removeUser, updateCountdownDisplay, isGameStarted, getIfShow};
 })();
 
 const UI = (function() {

@@ -8,10 +8,22 @@ const Socket = (function() {
     const getSocket = function() {
         return socket;
     };
+
 	const connect = function(_username) {
         console.log("in connect!");
         socket = io();
         let username = _username;
+
+        function getBackWaitingRoom() {
+            // Hide the game over overlay
+            document.getElementById('Gameover-overlay').style.display = 'none';
+
+            // Restart the game
+            // TODO: Bring back to waiting room
+            WaitingRoom.initialize();
+            WaitingRoom.show();
+            socket.emit("get player ready");
+        }
 
         socket.on("connect", () => {
             console.log("websocket connected");
@@ -39,6 +51,8 @@ const Socket = (function() {
         socket.on("add player ready", (_user, _readyUsersCount) => {
             const {user, readyUsersCount} = JSON.parse(_user, _readyUsersCount);
             console.log("adding ready player", user, readyUsersCount);
+            if(user.username!=username) playNewUserReadySound();
+            if(!WaitingRoom.getIfShow()) getBackWaitingRoom();
             WaitingRoom.addUser(user, readyUsersCount);
         });
 
@@ -109,14 +123,7 @@ const Socket = (function() {
             else playGameoverSound(false);
     
             document.getElementById('replay-button').addEventListener('click', function() {
-                // Hide the game over overlay
-                document.getElementById('Gameover-overlay').style.display = 'none';
-            
-                // Restart the game
-                // TODO: Bring back to waiting room
-                WaitingRoom.initialize();
-                WaitingRoom.show();
-                socket.emit("get player ready");
+                getBackWaitingRoom();
             });
     
         })
