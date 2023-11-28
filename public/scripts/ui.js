@@ -1,5 +1,16 @@
-function start(username){
+const PlayerID_to_Color2 = {
+	0 : null,
+	1 : "red",
+	2 : "blue",
+	3 : "green",
+	4 : "brown",
+	5 : "yellow",
+	6 : "Coral",
+	7 : "GreenYellow",
+	8 : "OliveDrab"
+}
 
+function startConnection(){
 	console.log("connecting");
 	Socket.connect(username);
 	console.log("success connect");
@@ -25,6 +36,9 @@ function initScoreBoard(table,players){
 
 	let count = 1;
 	players.forEach(function(player) {
+
+		nameList[player] = count;
+
 		var tr = document.createElement("tr");
 	  
 		headers.forEach(function(header) {
@@ -32,7 +46,7 @@ function initScoreBoard(table,players){
 			td.id = player + header; // "example: tonyArmy, stevenLand"
 
 			if (header === "Player") {
-				td.style.backgroundColor = PlayerID_to_Color[count++]; 
+				td.style.backgroundColor = PlayerID_to_Color2[count++]; 
 				td.textContent = player;
 			} else {
 				td.textContent = "0";
@@ -49,19 +63,25 @@ function initScoreBoard(table,players){
 	});
 
 	table.style.borderCollapse = 'collapse';
+
+  
 }
 
 function updateScoreBoard(scores){
 
-    // Iterate over the players in the scores dictionary
-    for(let player in scores) {
-        // Update their score in the table
-        document.getElementById(`${nameList[player - 1]}Army`).innerText = scores[player].army;
-        document.getElementById(`${nameList[player - 1]}Land`).innerText = scores[player].land;
-    let kills = parseInt(document.getElementById(`${nameList[player - 1]}Kill`).innerText);
-		document.getElementById(`${nameList[player - 1]}Kill`).innerText = scores[player].kill+kills;
-    }    
+	if(nameList){
+		// Iterate over the players in the scores dictionary
+		for(let player in scores) {
+			// Update their score in the table
+			document.getElementById(`${nameList[player - 1]}Army`).innerText = scores[player].army;
+			document.getElementById(`${nameList[player - 1]}Land`).innerText = scores[player].land;
+		let kills = parseInt(document.getElementById(`${nameList[player - 1]}Kill`).innerText);
+			document.getElementById(`${nameList[player - 1]}Kill`).innerText = scores[player].kill+kills;
+		}    
+	}
+
 }
+
 
 function initFinalScoreBoard(table, players, scores){
     // Create header
@@ -133,6 +153,14 @@ function playGameoverSound(_win) {
     else lose.play();
 }
 
+function showToast(message) {
+    var toast = document.getElementById("toast");
+    toast.className = "show";
+    toast.innerText = message;
+    setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
+}
+
+
 const SignInForm = (function() {
     // This function initializes the UI
     const initialize = function() {
@@ -155,12 +183,7 @@ const SignInForm = (function() {
             Authentication.signin(username, password,
                 () => {
                     hide();
-                    //UserPanel.update(Authentication.getUser());
-                    //UserPanel.show();
-					
-
-					start(username);
-					console.log("goood");
+                    Socket.connect(username);;
 					WaitingRoom.show();
 					//socket.emit("add player", username);
                 },
@@ -268,7 +291,6 @@ const WaitingRoom = (function() {
 		console.log("show");
 		username = _username;
 		$("#waiting-room").fadeIn(500);
-		//Socket.updateReadyUser();
 	};
 
 	const hide = function() {
@@ -326,7 +348,11 @@ const WaitingRoom = (function() {
         updateReadyUserCountDisplay(readyUserSize);
 	};
 
-    return { show, hide, initialize, update, addUser, removeUser, updateCountdownDisplay};
+    function isGameStarted(){
+		Socket.ifGameStart();
+	}
+
+    return { show, hide, initialize, update, addUser, removeUser, updateCountdownDisplay, isGameStarted};
 })();
 
 const UI = (function() {

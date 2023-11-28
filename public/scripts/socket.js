@@ -1,3 +1,4 @@
+
 const Socket = (function() {
 
     // This stores the current Socket.IO socket
@@ -15,9 +16,12 @@ const Socket = (function() {
         socket.on("connect", () => {
             console.log("websocket connected");
             socket.emit("get player ready");
+        
+            ifGameStart(); // For come back situation
+            //startGame();
         });
 
-        socket.on("start game", gameMapPayload => {
+        socket.on("init map", gameMapPayload => {
             const {map, players} = JSON.parse(gameMapPayload);
             ({staticMap, unitsMap, playerMap, gameTick} = map);
 
@@ -148,17 +152,32 @@ const Socket = (function() {
             WaitingRoom.hide();
         });
 
+        socket.on("game started", result =>{
+            if(JSON.parse(result))
+                socket.emit("start game");
+        })
+
+        socket.on("show spectator mode reminder", ()=>{
+            document.getElementById('spectator-mode').style.display = "block";
+        })
+
+        socket.on("hide spectator mode reminder,", ()=>{
+            document.getElementById('spectator-mode').style.display = "none";
+        })
+
+        socket.on("illegal operation",()=>{
+            showToast("Operation not allowed in spectator mode!")
+        })
+
         document.addEventListener("keydown", event => {
             console.log("key pressed");
             switch(event.key){
                 case 'w': //"w"
-                    gameMap.move(0); break;
                 case 'a': //"a"
-                    gameMap.move(1); break;
                 case 's': //"s"
-                    gameMap.move(2); break;
                 case 'd': //"d"
-                    gameMap.move(3); break;
+                    gameMap.move(Key_to_Dir[event.key]); 
+                    break;
                 case 'c':
                     gameMap.cheat();
                 default:
@@ -186,5 +205,13 @@ const Socket = (function() {
         socket.emit("disconnect");
     }
 
-    return { getSocket, connect, addReadyUser, addOperation, cheat, disconnect};
+    const startGame = function(){
+        socket.emit("start game");
+    };
+
+    const ifGameStart = function(){
+        socket.emit("is game started");
+    }
+    
+    return { getSocket, connect, addReadyUser, addOperation, cheat, startGame, disconnect};
 })();

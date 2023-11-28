@@ -106,8 +106,7 @@ input::placeholder, select {
 button {
     font-weight: bold;
     height: 40px;
-    border: 1px solid black;
-    color: var(--button-color);
+        color: var(--button-color);
     background: var(--button-background);
     box-shadow: 2px 2px 2px rgb(0, 0, 0, 0.4);
     padding: 20px;
@@ -448,6 +447,14 @@ table {
 
 }
 
+#waiting-sign-out{
+    line-height: 3px; 
+    font-size: 20px; 
+    padding: 30px 30px; 
+    background-color: darkgray;
+    border: darkgrey;
+}
+
 #waiting-room {
     height: 300px;
     width: 800px;
@@ -457,7 +464,62 @@ table {
     transform: translate(-50%, -50%);
 }
 
+#spectator-mode {
+    position: absolute; 
+    top: 0; 
+    left: 0; 
+    padding: 10px;
+    background-color: #ffc107; 
+    color: #000; 
+    z-index: 2000; 
+    font-weight: bold;
+    font-size: 35px;
+    display: none;
+    
+}
 
+#toast {
+    visibility: hidden;
+    max-width: 50%;
+    margin: auto;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 2px;
+    padding: 16px;
+    position: fixed;
+    z-index: 1;
+    left: 50%;
+    bottom: 30px;
+    font-size: 17px;
+    transform: translate(-50%, 0);
+}
+
+#toast.show {
+    visibility: visible;
+    -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+@-webkit-keyframes fadein {
+    from {bottom: 0; opacity: 0;} 
+    to {bottom: 30px; opacity: 1;}
+}
+
+@keyframes fadein {
+    from {bottom: 0; opacity: 0;}
+    to {bottom: 30px; opacity: 1;}
+}
+
+@-webkit-keyframes fadeout {
+    from {bottom: 30px; opacity: 1;} 
+    to {bottom: 0; opacity: 0;}
+}
+
+@keyframes fadeout {
+    from {bottom: 30px; opacity: 1;}
+    to {bottom: 0; opacity: 0;}
+}
 
 
 

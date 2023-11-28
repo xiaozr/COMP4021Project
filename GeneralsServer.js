@@ -9,6 +9,7 @@ const waitingRoom = require('./public/scripts/ui').WaitingRoom;
 
 var onlineUsers = {}
 var readyUsers = {}
+var playingUsers = new Set();
 var readyUsersCount = 0
 
 con.io.on("connection", socket => {
@@ -27,15 +28,36 @@ con.io.on("connection", socket => {
 
 	}
 
+
 	function startGame() {
-		if(gameController.isStarted()) {
-			return ;
+		// 1. game started and user is playing
+		const {username} = socket.request.session.user;
+		//console.log(gameController.getPlayerList());
+
+		if(gameController.isStarted()&&(gameController.getPlayerList().has(username))&&(!playingUsers.has(username))){
+
+			//console.log("pass....");
+			//console.log("Player " + username + " joined");
+			//gameController.resumeGame();
+			socket.emit("hide waiting room");
+			//gameController.addUser(username,socket);
+			socket.emit("init map", JSON.stringify({map: gameController.getGameMapPayLoad(), players: Object.fromEntries(gameController.getPlayerList())}));
+			socket.emit("init score",Array.from(gameController.getPlayerList().keys()));
+
+		} 
+		else if(gameController.isStarted()&&(!gameController.getPlayerList().has(username))) { // 2. game started and user is not playing
+			//TODO: Watching mode
+			//con.io.emit("hide waiting room");
+			//gameController.startGame();
+			//gameController.addUser(username, socket);
+			console.log(username+":Enter spectator mode");
+			socket.emit("show spectator mode reminder");
 		}
-		// else
-		// 	gameController.startGame();
-		else if (readyUsersCount>=2) {
+		// 3. game is not started 
+		else if (readyUsersCount>=2 && !gameController.isStarted()) {
 			for (user in readyUsers) {
-				gameController.addUser(user);
+				gameController.addUser(user,socket);
+				playingUsers.add(user);
 			}
 			con.io.emit("update count down", JSON.stringify(15));
 			con.io.emit("hide waiting room");
@@ -62,7 +84,7 @@ con.io.on("connection", socket => {
 	})
 
 	socket.on("get player ready", () => {
-		console.log("got player ready", readyUsers, readyUsersCount);
+		//console.log("Ready users:", readyUsers, readyUsersCount);
 		socket.emit("update player ready", JSON.stringify({readyUsers: readyUsers,
 			readyUsersCount: readyUsersCount}));
 	})
@@ -90,16 +112,27 @@ con.io.on("connection", socket => {
 
 	socket.on("add operation", payload => {
 		const {username} = socket.request.session.user;
-		gameController.addOperation(username, JSON.parse(payload));
+		if(!gameController.addOperation(username, JSON.parse(payload))){
+			socket.emit("illegal operation");
+		}
+			
 	})
 
 	socket.on("trigger count down", () => {
 		gameController.startCountdown();
+		console.log("Ready users:", readyUsers, readyUsersCount);
 	})
 
 	socket.on("cheat", cell=>{
 		const {username} = socket.request.session.user;
 		gameController.cheatOnCell(username,cell);
+	})
+
+	socket.on("is game started", ()=>{
+		if(gameController.isStarted())	
+			socket.emit("game started", JSON.stringify(true));
+		else
+			socket.emit("game started", JSON.stringify(false))
 	})
 });
 
