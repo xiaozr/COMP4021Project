@@ -6,7 +6,8 @@ const MapValueEnum = {
 	UNKNOWN: ' ', 				//only used inside the map generating procedure
 	BONUS: 'B',
 	TRAP: 'T',
-	HOLE: 'H'
+	HOLE: 'H',
+	HOLE_IN: 'I'
 }
 
 const MapValueEnum_to_image = {
@@ -16,7 +17,8 @@ const MapValueEnum_to_image = {
 	'.': "imgs/empty.svg",		
 	'B': "imgs/bonus.svg", 		
 	'T': "imgs/trap.svg", 		
-	'H': "imgs/hole.svg", 		
+	'H': "imgs/hole.svg", 
+	'I': "imgs/hole_in.svg"		
 };
 
 const Key_to_Dir = {

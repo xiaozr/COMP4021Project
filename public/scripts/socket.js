@@ -1,4 +1,3 @@
-
 const Socket = (function() {
 
     // This stores the current Socket.IO socket
@@ -65,6 +64,10 @@ const Socket = (function() {
             // console.log(toStr(unitsMap));
             // console.log(toStr(playerMap));
             const difference = gameMap.compareMap(staticMap, unitsMap, playerMap);
+            if(difference['HOLE_IN']!=0) {
+                console.log("hole to clear", JSON.stringify(difference['HOLE_IN']));
+                socket.emit("hole in clear", JSON.stringify(difference['HOLE_IN']));
+            }
             gameMap.renderMap(staticMap, unitsMap, playerMap);
             console.log(JSON.stringify(difference));
         });

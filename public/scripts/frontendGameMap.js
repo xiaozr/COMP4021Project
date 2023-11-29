@@ -30,6 +30,7 @@ const gameMap = (function() {
 
 	let selectedCell;
 	let myPlayerID;
+	let itr = 0;
 
 	function isInMap(r, c){
 		return (r >= 0 && r < rowCnt && c >= 0 && c < colCnt && storedGameMap.staticMap[r][c] != '*');
@@ -40,14 +41,19 @@ const gameMap = (function() {
 				return true;
 		return false;
 	}
-	function showCell(i, j){
-		document.getElementById(`img-${i},${j}`).setAttributeNS('http://www.w3.org/1999/xlink','href', MapValueEnum_to_image[storedGameMap.staticMap[i][j]]);
+	function showCell(i, j, itr){
+		if(storedGameMap.staticMap[i][j]=="*" && itr<=5)
+			document.getElementById(`img-${i},${j}`).setAttributeNS('http://www.w3.org/1999/xlink','href', "imgs/mountain_" + itr + ".svg");
+		else
+			document.getElementById(`img-${i},${j}`).setAttributeNS('http://www.w3.org/1999/xlink','href', MapValueEnum_to_image[storedGameMap.staticMap[i][j]]);
+		//if(storedGameMap.staticMap[i][j]=="I") storedGameMap.staticMap[i][j]=MapValueEnum.HOLE;
 		document.getElementById(`span-${i},${j}`).textContent = storedGameMap.unitsMap[i][j];
 		document.getElementById(`span-${i},${j}`).style.visibility = storedGameMap.unitsMap[i][j] > 0 ? 'visible' : 'hidden';
 		document.getElementById(`cell-${i},${j}`).style.backgroundColor = PlayerID_to_Color[storedGameMap.playerMap[i][j]];
 	}
 	function hideCell(i, j){
 		document.getElementById(`img-${i},${j}`).setAttributeNS('http://www.w3.org/1999/xlink','href', storedGameMap.staticMap[i][j] == '*' ? "imgs/mountain.svg" : "imgs/empty.svg");
+		//if(storedGameMap.staticMap[i][j]=="I") storedGameMap.staticMap[i][j]=MapValueEnum.HOLE;
 		document.getElementById(`span-${i},${j}`).style.visibility = 'hidden';
 		document.getElementById(`cell-${i},${j}`).style.backgroundColor = "Grey";
 	}
@@ -85,6 +91,7 @@ const gameMap = (function() {
 
 	function compareMap(staticMap, unitsMap, playerMap) {
 		const result = {};
+		result['HOLE_IN']=0;
 		for (let i = 0; i < rowCnt; i++)
 			for (let j = 0; j < colCnt; j++){
 				if(playerMap[i][j] != myPlayerID)
@@ -100,16 +107,20 @@ const gameMap = (function() {
 					result["GENERAL"] = true;
 				if(storedGameMap.staticMap[i][j] == MapValueEnum.CITY && playerMap[i][j] != storedGameMap.playerMap[i][j])
 					result["CITY"] = true;
+				if(storedGameMap.staticMap[i][j] == MapValueEnum.HOLE_IN) {
+					result['HOLE_IN'] = i*100+j;
+				}
 			}
 		return result;
 	}
 	
 	function renderMap(staticMap, unitsMap, playerMap) {
+		itr = (itr + 1) % 100;
 		storedGameMap = {staticMap, unitsMap, playerMap};
 		for (let i = 0; i < rowCnt; i++)
 			for (let j = 0; j < colCnt; j++){
 				if(myPlayerID == null || checkShow(i, j))
-					showCell(i, j);
+					showCell(i, j, itr%10);
 				else
 					hideCell(i, j);
 			}
