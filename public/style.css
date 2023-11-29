@@ -288,22 +288,22 @@ table {
     box-sizing: border-box;
     border: 2px solid black;
     background-color: #fff;
-    width: 80px;
-    height: 80px;
+    /* width: 80px;
+    height: 80px; */
     text-align: center;
     vertical-align: middle;
     position: relative;
     box-sizing: border-box;
 }
-.selected-cell {
+/* .selected-cell {
     border: 5px solid black;
-}
+} */
 .highlight-path {
     fill: transparent;
     stroke: #eee;
-    stroke-width: 8;
+    /* stroke-width: 8;
     stroke-dasharray: 40;
-    stroke-dashoffset: 80;
+    stroke-dashoffset: 80; */
     animation: dash 0.5s linear infinite;
 }
 @keyframes dash {
