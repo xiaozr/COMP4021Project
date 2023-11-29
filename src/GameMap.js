@@ -202,7 +202,6 @@ function GameMap(playerList){
     }
 
 	function clearHoleIn(i, j) {
-		console.log('hole is cleared', i, j);
 		staticMap[i][j] = MapValueEnum.HOLE;
 	}
 

@@ -149,7 +149,6 @@ con.io.on("connection", socket => {
 	})
 
 	socket.on("hole in clear", (payload)=>{
-		console.log("hole in clear", payload);
 		gameController.clearHoleIn(JSON.stringify(payload));
 	})
 });
