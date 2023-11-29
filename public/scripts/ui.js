@@ -1,4 +1,3 @@
-
 const PlayerID_to_Color2 = {
 	0 : null,
 	1 : "red",
@@ -13,14 +12,16 @@ const PlayerID_to_Color2 = {
 
 function startConnection(){
 	console.log("connecting");
-	Socket.connect();
+	Socket.connect(username);
 	console.log("success connect");
 
 }
 
-let nameList;
+let nameList = new Map();
+
 function initScoreBoard(table,players){
 
+    console.log("init scoreboard with players " + JSON.stringify(players));
 	// Create header
 	var headers = ["Player", "Army", "Land", "Kill"];
 	var tr = document.createElement("tr");
@@ -36,21 +37,20 @@ function initScoreBoard(table,players){
 
 	table.appendChild(tr);
 
-	let count = 1;
-	players.forEach(function(player) {
+    nameList.clear();
+	Object.entries(players).forEach(([playerName, playerID]) => {
 
-		nameList[player] = count;
+		nameList.set(playerName, playerID);
 
 		var tr = document.createElement("tr");
 	  
 		headers.forEach(function(header) {
 			var td = document.createElement("td");
-			td.id = player + header; // "example: tonyArmy, stevenLand"
+			td.id = playerName + header; // "example: tonyArmy, stevenLand"
 
 			if (header === "Player") {
-				td.style.backgroundColor = PlayerID_to_Color2[count++]; 
-				td.textContent = player;
-
+				td.style.backgroundColor = PlayerID_to_Color2[playerID]; 
+				td.textContent = playerName;
 			} else {
 				td.textContent = "0";
 			}
@@ -71,26 +71,28 @@ function initScoreBoard(table,players){
 }
 
 function updateScoreBoard(scores){
-
-	if(nameList){
-		// Iterate over the players in the scores dictionary
-		for(let player in scores) {
-			// Update their score in the table
-			document.getElementById(`${nameList[player - 1]}Army`).innerText = scores[player].army;
-			document.getElementById(`${nameList[player - 1]}Land`).innerText = scores[player].land;
-		let kills = parseInt(document.getElementById(`${nameList[player - 1]}Kill`).innerText);
-			document.getElementById(`${nameList[player - 1]}Kill`).innerText = scores[player].kill+kills;
-		}    
-	}
+    console.log("update score board " + [...nameList.entries()] + " with " + JSON.stringify(scores));
+    for(let [playerName, playerID] of nameList.entries()) {
+        // Update their score in the table
+        let strID = playerID.toString();
+        if(strID in scores) {
+            document.getElementById(`${playerName}Army`).innerText = scores[strID].army;
+            document.getElementById(`${playerName}Land`).innerText = scores[strID].land;
+            let kills = parseInt(document.getElementById(`${playerName}Kill`).innerText);
+            document.getElementById(`${playerName}Kill`).innerText = scores[strID].kill+kills;
+        }
+    }    
 
 }
 
 
 function initFinalScoreBoard(table, players, scores){
     // Create header
+    while(table.firstChild){
+        table.removeChild(table.firstChild);
+    }
     var headers = ["Rank", "Player", "Army", "Land", "Kill"];
     var tr = document.createElement("tr");
-
     headers.forEach(function(header) {
         var th = document.createElement("th");
         th.textContent = header;
@@ -144,6 +146,38 @@ function initFinalScoreBoard(table, players, scores){
     table.style.borderCollapse = 'collapse';
 }
 
+function playMoveSound(){
+    console.log("play move sound!");
+    var move = new Audio('../audios/move.wav');
+    move.play();
+}
+
+function playGameoverSound(_win) {
+    var win = new Audio('../audios/win.wav');
+    var lose = new Audio('../audios/lose.wav');
+    if(_win) win.play();
+    else lose.play();
+}
+
+function playNewUserReadySound() {
+    var ready = new Audio('../audios/ready.wav');
+    ready.play();
+}
+
+function playItemSound(result) {
+    if(result.GENERAL)
+        (new Audio('../audios/general.wav')).play();
+    else if(result.CITY)
+        (new Audio('../audios/city.wav')).play();
+    else if(result.HOLE)
+        (new Audio('../audios/hole.wav')).play();
+    else if(result.TRAP)
+        (new Audio('../audios/trap.wav')).play();
+    else if(result.BONUS)
+        (new Audio('../audios/bonus.wav')).play();
+}
+
+
 function showToast(message) {
     var toast = document.getElementById("toast");
     toast.className = "show";
@@ -174,7 +208,7 @@ const SignInForm = (function() {
             Authentication.signin(username, password,
                 () => {
                     hide();
-                    Socket.connect();;
+                    Socket.connect(username);;
 					WaitingRoom.show();
 					//socket.emit("add player", username);
                 },
@@ -231,12 +265,23 @@ const WaitingRoom = (function() {
 	// TODO: replace with global variable
 	var seconds = 3; // Initial countdown value
 	const MAX_USER = 8;
+    var ifshow = false;
 
     // This function initializes the UI
     const initialize = function() {
 		$("#waiting-room").hide();
 
+        // Clear the online users area
+        const readyUsersArea = $("#ready-users-area");
+        readyUsersArea.empty();
+		readyUsersArea.append($("<div class='caption'>Ready Users</div>"));
+
 		$("#get-ready").click(function(){
+			console.log("ready clicked");
+			Socket.addReadyUser();
+		});
+
+        $("#get-ready").click(function(){
 			console.log("ready clicked");
 			Socket.addReadyUser();
 		});
@@ -244,7 +289,15 @@ const WaitingRoom = (function() {
 		$("#waiting-sign-out").click(function(){
 			console.log("signout clicked");
 			//TODO: sign out
-		});		
+            Authentication.signout(
+                () => {
+                    Socket.disconnect();
+
+                    hide();
+                    //SignInForm.show();
+                }
+            );
+		});
 	};
 
 	// Function to update the countdown display
@@ -261,13 +314,15 @@ const WaitingRoom = (function() {
 
 	// This function shows the form
 	const show = function(_username) {
-		console.log("show waiting room");
-		$("#waiting-room").fadeIn(500); // show waiting room
-
+		console.log("show");
+		username = _username;
+		$("#waiting-room").fadeIn(500);
+        ifshow = true;
 	};
 
 	const hide = function() {
 		$("#waiting-room").fadeOut(500);
+        ifshow = false;
 	}
 
     // This function updates the ready users panel
@@ -308,21 +363,26 @@ const WaitingRoom = (function() {
 	};
 
     // This function removes a user from the panel
-	const removeUser = function(user) {
-        const onlineUsersArea = $("#online-users-area");
+	const removeUser = function(user, readyUserSize) {
+        console.log("remove user here!", user.username, readyUserSize);
+        const onlineUsersArea = $("#ready-users-area");
 		
 		// Find the user
 		const userDiv = onlineUsersArea.find("#username-" + user.username);
+        console.log(userDiv);
 		
 		// Remove the user
 		if (userDiv.length > 0) userDiv.remove();
+        updateReadyUserCountDisplay(readyUserSize);
 	};
 
     function isGameStarted(){
 		Socket.ifGameStart();
 	}
 
-    return { show, hide, initialize, update, addUser, removeUser, updateCountdownDisplay, isGameStarted};
+    function getIfShow(){return ifshow;}
+
+    return { show, hide, initialize, update, addUser, removeUser, updateCountdownDisplay, isGameStarted, getIfShow};
 })();
 
 const UI = (function() {

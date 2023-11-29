@@ -95,6 +95,5 @@ const Authentication = (function() {
         // Delete when appropriate
         //if (onError) onError("This function is not yet implemented.");
     };
-
     return { getUser, signin, validate, signout };
 })();
