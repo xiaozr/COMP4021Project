@@ -230,7 +230,15 @@ function GameController(io){
 		return gameMap.pack();
 	}
 
-	return {isStarted, addUser, removeUser, startGame, endGame, addOperation, clearOperationBuffer,getPlayerList, startCountdown, cheatOnCell,getGameMapPayLoad};
+	function clearHoleIn(payload){
+		let loc = JSON.parse(payload);
+		let i = Math.floor(loc / 100);
+		let j = loc % 100;
+		console.log(loc, i, j);
+		return gameMap.clearHoleIn(i, j);
+	}
+
+	return {isStarted, addUser, removeUser, startGame, endGame, addOperation, clearOperationBuffer,getPlayerList, startCountdown, cheatOnCell,getGameMapPayLoad, clearHoleIn};
 }
 
 module.exports = {GameController};

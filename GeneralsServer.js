@@ -147,6 +147,11 @@ con.io.on("connection", socket => {
 		else
 			socket.emit("game started", JSON.stringify(false))
 	})
+
+	socket.on("hole in clear", (payload)=>{
+		console.log("hole in clear", payload);
+		gameController.clearHoleIn(JSON.stringify(payload));
+	})
 });
 
 con.httpServer.listen(8000, () => {
