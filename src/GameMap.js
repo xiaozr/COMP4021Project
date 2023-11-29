@@ -84,6 +84,8 @@ function GameMap(playerList){
 			fillRandomEmptyCell(staticMap, MapValueEnum.EMPTY, MapValueEnum.TRAP);
 			wormHolePos.push(fillRandomEmptyCell(staticMap, MapValueEnum.EMPTY, MapValueEnum.HOLE));
 		}
+		let {x, y} = fillRandomEmptyCell(staticMap, MapValueEnum.EMPTY, MapValueEnum.CITY);
+		unitsMap[x][y] = 60;
 	}
 	
 	generateMap(3);

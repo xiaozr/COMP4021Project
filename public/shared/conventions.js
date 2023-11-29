@@ -33,6 +33,8 @@ const Dir_to_diff = {		//[diff_in_row, diff_in_col]
 	3: [0, 1]
 };
 
+const cellSize = 40;
+
 if (typeof process === 'object') { // Detect when this is nodejs
     // only exports in backend
     module.exports = {MapValueEnum, MapValueEnum_to_image, Key_to_Dir, Dir_to_diff};
