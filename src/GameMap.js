@@ -154,6 +154,8 @@ function GameMap(playerList){
 		else if(staticMap[r2][c2] == MapValueEnum.HOLE && !is2ndJump){
 			const otherHoles = wormHolePos.filter(pos => (pos.x != r2 || pos.y != c2));
 			const idx = Math.floor(Math.random() * otherHoles.length);
+			console.log("i become hole in");
+			staticMap[r2][c2] = MapValueEnum.HOLE_IN;
 			return moveUnits(r2, c2, otherHoles[idx].x, otherHoles[idx].y, unitsMap[r2][c2], true);
 		}
 		else return 0;
@@ -199,7 +201,11 @@ function GameMap(playerList){
 			staticMap[cell.r1][cell.c1] = MapValueEnum.CITY;
     }
 
-	return {gameTick, pack, growUnits, executeOperation, checkCell, setPlayerAtCell};
+	function clearHoleIn(i, j) {
+		staticMap[i][j] = MapValueEnum.HOLE;
+	}
+
+	return {gameTick, pack, growUnits, executeOperation, checkCell, setPlayerAtCell, clearHoleIn};
 }
 
 module.exports = {GameMap};

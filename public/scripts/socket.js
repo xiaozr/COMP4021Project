@@ -1,4 +1,3 @@
-
 const Socket = (function() {
 
     // This stores the current Socket.IO socket
@@ -67,6 +66,9 @@ const Socket = (function() {
             // console.log(toStr(unitsMap));
             // console.log(toStr(playerMap));
             const difference = gameMap.compareMap(staticMap, unitsMap, playerMap);
+            if(difference['HOLE_IN']!=0) {
+                socket.emit("hole in clear", JSON.stringify(difference['HOLE_IN']));
+            }
             gameMap.renderMap(staticMap, unitsMap, playerMap);
             console.log(JSON.stringify(difference));
             playItemSound(difference);
@@ -176,6 +178,11 @@ const Socket = (function() {
 
         socket.on("illegal operation",()=>{
             showToast("Operation not allowed in spectator mode!");
+        })
+
+        socket.on("increase kill",(username)=>{
+            //const {username} = socket.request.session.user;
+            document.getElementById(`${username}Kill`).innerText = parseInt(document.getElementById(`${username}Kill`).innerText)+1;
         })
 
         socket.on("increase kill",(username)=>{

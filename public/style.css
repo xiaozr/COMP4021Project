@@ -233,7 +233,7 @@ button.icon:active {
     background: linear-gradient(to bottom, rgb(52, 159, 253), rgb(152, 200, 255));
     border-radius: 10px;
     box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
-    
+
 }
 #ready-users-area {
     flex-grow: 1;
