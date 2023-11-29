@@ -43,7 +43,7 @@ con.io.on("connection", socket => {
 			socket.emit("hide waiting room");
 			//gameController.addUser(username,socket);
 			socket.emit("init map", JSON.stringify({map: gameController.getGameMapPayLoad(), players: Object.fromEntries(gameController.getPlayerList())}));
-			socket.emit("init score",Array.from(gameController.getPlayerList().keys()));
+			// socket.emit("init score",Array.from(gameController.getPlayerList().keys()));
 
 		} 
 		else if(gameController.isStarted()&&(!gameController.getPlayerList().has(username))) { // 2. game started and user is not playing

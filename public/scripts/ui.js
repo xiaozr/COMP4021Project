@@ -17,10 +17,11 @@ function startConnection(){
 
 }
 
-let nameList = {};
+let nameList = new Map();
 
 function initScoreBoard(table,players){
 
+    console.log("init scoreboard with players " + JSON.stringify(players));
 	// Create header
 	var headers = ["Player", "Army", "Land", "Kill"];
 	var tr = document.createElement("tr");
@@ -36,20 +37,20 @@ function initScoreBoard(table,players){
 
 	table.appendChild(tr);
 
-	let count = 1;
-	players.forEach(function(player) {
+    nameList.clear();
+	Object.entries(players).forEach(([playerName, playerID]) => {
 
-		nameList[player] = count;
+		nameList.set(playerName, playerID);
 
 		var tr = document.createElement("tr");
 	  
 		headers.forEach(function(header) {
 			var td = document.createElement("td");
-			td.id = player + header; // "example: tonyArmy, stevenLand"
+			td.id = playerName + header; // "example: tonyArmy, stevenLand"
 
 			if (header === "Player") {
-				td.style.backgroundColor = PlayerID_to_Color2[count++]; 
-				td.textContent = player;
+				td.style.backgroundColor = PlayerID_to_Color2[playerID]; 
+				td.textContent = playerName;
 			} else {
 				td.textContent = "0";
 			}
@@ -70,23 +71,26 @@ function initScoreBoard(table,players){
 }
 
 function updateScoreBoard(scores){
-
-	if(nameList){
-		// Iterate over the players in the scores dictionary
-		for(let player in scores) {
-			// Update their score in the table
-			document.getElementById(`${nameList[player - 1]}Army`).innerText = scores[player].army;
-			document.getElementById(`${nameList[player - 1]}Land`).innerText = scores[player].land;
-		let kills = parseInt(document.getElementById(`${nameList[player - 1]}Kill`).innerText);
-			document.getElementById(`${nameList[player - 1]}Kill`).innerText = scores[player].kill+kills;
-		}    
-	}
+    console.log("update score board " + [...nameList.entries()] + " with " + JSON.stringify(scores));
+    for(let [playerName, playerID] of nameList.entries()) {
+        // Update their score in the table
+        let strID = playerID.toString();
+        if(strID in scores) {
+            document.getElementById(`${playerName}Army`).innerText = scores[strID].army;
+            document.getElementById(`${playerName}Land`).innerText = scores[strID].land;
+            let kills = parseInt(document.getElementById(`${playerName}Kill`).innerText);
+            document.getElementById(`${playerName}Kill`).innerText = scores[strID].kill+kills;
+        }
+    }    
 
 }
 
 
 function initFinalScoreBoard(table, players, scores){
     // Create header
+    while(table.firstChild){
+        table.removeChild(table.firstChild);
+    }
     var headers = ["Rank", "Player", "Army", "Land", "Kill"];
     var tr = document.createElement("tr");
     headers.forEach(function(header) {

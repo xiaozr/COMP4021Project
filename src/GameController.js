@@ -50,8 +50,8 @@ function GameController(io){
 			return;
 		//increase units on map
 		gameMap.growUnits();
-		let Scores = {};
 
+		let Scores = {};
 		//execute one operation for each user
 		for(const [playerID, operationList] of playerOperationBuffer){			
 			if(operationList.length > 0){
@@ -154,7 +154,7 @@ function GameController(io){
 		if(isStarted() && !(playerList.has(username))){
 			console.log(username + " Come back init");
 			socket.emit("init map", JSON.stringify(gameMap.pack()));
-			socket.emit("init score",Array.from(playerList.keys()));
+			// socket.emit("init score",Array.from(playerList.keys()));
 		}
 		return true;
 	}
@@ -176,7 +176,7 @@ function GameController(io){
 		gameMap = gameMapConstructor.GameMap(Array.from(playerList.values()));
 
 		io.emit("init map", JSON.stringify({map: gameMap.pack(), players: Object.fromEntries(playerList)}));
-		io.emit("init score",Array.from(playerList.keys()));
+		// io.emit("init score",Array.from(playerList.keys()));
 
 		mainTimer = makeLoop(updatePeriod, gameIteration); // Update game every 0.5 seconds
 

@@ -69,8 +69,19 @@
                     7. To win the game, you need to <strong>find and capture your opponents' generals</strong>.
                 </div>
                 <div class="spacer-8"></div>
-                                <button id="get-ready" style="line-height: 3px; font-size: 30px; width: 80%; border-radius: 10px;">I'm Ready!</button>
-                <button id="waiting-sign-out" style="line-height: 3px; width: 50%; padding: 15px 10px; border-radius: 10px; margin-top: 15px;">Exit</button>
+                                <div class="row"> <!-- Added this wrapper -->
+                    <div id="count-time" class="col counting" style="margin-right: 50px;">
+                        <div class="caption">COUNT DOWN</div>
+                        <div id="timeleft" class="caption">15s</div>
+                    </div>
+                    <div id="count-user" class="col counting">
+                        <div class="caption">NUMBER OF PLAYER</div>
+                        <div id="readyusercount" class="caption">0</div>
+                    </div>
+                </div> <!-- End of wrapper -->
+                <div class="spacer-8"></div>
+                <button id="get-ready" style="line-height: 3px;">I'm Ready!</button>
+                <button id="waiting-sign-out" style="line-height: 3px; font-size: 20px; padding: 25px 40px;">Sign out</button>
             </div>
             <div class="col"> <!-- Added this wrapper -->
                 <div id="ready-users-area" class="col" style="position: relative;">

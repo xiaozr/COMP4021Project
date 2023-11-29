@@ -45,6 +45,8 @@ const Socket = (function() {
 
             gameMap.initMap(staticMap, players); // Draw Map on front end
             gameMap.renderMap(staticMap, unitsMap, playerMap);
+
+            initScoreBoard(document.getElementById("scoreBoard"), players);
         });
 
         socket.on("add player ready", (_user, _readyUsersCount) => {
@@ -73,9 +75,7 @@ const Socket = (function() {
         });
 
         socket.on("init score",playerList => {
-            nameList = playerList;
-            initScoreBoard(document.getElementById("scoreBoard"),nameList)
-            
+            // initScoreBoard(document.getElementById("scoreBoard"),playerList)
         });
 
         socket.on("update score",(playerScores) =>{
@@ -177,7 +177,12 @@ const Socket = (function() {
         })
 
         socket.on("illegal operation",()=>{
-            showToast("Operation not allowed in spectator mode!")
+            showToast("Operation not allowed in spectator mode!");
+        })
+
+        socket.on("increase kill",(username)=>{
+            //const {username} = socket.request.session.user;
+            document.getElementById(`${username}Kill`).innerText = parseInt(document.getElementById(`${username}Kill`).innerText)+1;
         })
 
         socket.on("increase kill",(username)=>{

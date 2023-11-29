@@ -134,6 +134,7 @@ const gameMap = (function() {
 		while (table.firstChild) {
 			table.removeChild(table.firstChild);
 		}
+		selectedCell = null;
 		rowCnt = staticMap.length;
 		colCnt = staticMap[0].length;
 		myPlayerID = players[Authentication.getUser().username];
