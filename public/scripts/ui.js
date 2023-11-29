@@ -17,6 +17,8 @@ function startConnection(){
 
 }
 
+let nameList = {};
+
 function initScoreBoard(table,players){
 
 	// Create header
