@@ -212,7 +212,9 @@ function GameController(io){
 	}
 
 	function cheatOnCell(username, cellToChange){
-		gameMap.setPlayerAtCell(playerList.get(username), cellToChange);
+		
+		const playerID = playerList.get(username);
+		gameMap.setPlayerAtCell(playerID, cellToChange);
 	}
 
 	function clearOperationBuffer(username){

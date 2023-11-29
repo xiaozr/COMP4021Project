@@ -92,24 +92,25 @@ con.io.on("connection", socket => {
 	})
 
 	socket.on("disconnect", () => {
-		console.log("Disconnect");
+		//console.log("Disconnecting");
 		if (socket.request.session.user){
 			const {username, avatar, name} = socket.request.session.user;
 			//gameController.removeUser(username);
 			delete onlineUsers[username];
 			playingUsers.delete(username);
 			console.log(username+" disconnected with server");
-			// if(username in readyUsers) {
-			// 	console.log("remove player", username);
-			// 	readyUsersCount--;
-			// 	if(readyUsersCount==0 && countdownInterval!=null){
-			// 		clearTimeout(countdownInterval);
-			// 		countdownInterval=null;
-			// 		con.io.emit("update count down", JSON.stringify(15));
-			// 	}
-			// 	con.io.emit("remove player ready", JSON.stringify({user: socket.request.session.user,
-			// 		readyUsersCount: readyUsersCount}));
-			// 	delete readyUsers[username];
+			if(username in readyUsers && !gameController.getPlayerList().has(username)) {
+				console.log("remove player: ", username, "from ready list");
+				readyUsersCount--;
+				if(readyUsersCount==0 && countdownInterval!=null){
+					clearTimeout(countdownInterval);
+					countdownInterval=null;
+					con.io.emit("update count down", JSON.stringify(15));
+				}
+				con.io.emit("remove player ready", JSON.stringify({user: socket.request.session.user,
+					readyUsersCount: readyUsersCount}));
+				delete readyUsers[username];
+			}
 			
 		}
 	})
@@ -133,6 +134,10 @@ con.io.on("connection", socket => {
 
 	socket.on("cheat", cell=>{
 		const {username} = socket.request.session.user;
+		const {staticMap} = gameController.getGameMapPayLoad();
+		const {r1,c1} = cell;
+		if(staticMap[r1][c1]=='$')
+			socket.emit("increase kill",username);
 		gameController.cheatOnCell(username,cell);
 	})
 

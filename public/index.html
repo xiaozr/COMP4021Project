@@ -30,7 +30,7 @@
                 <input id="signin-username" placeholder="Enter your username"></input>
                 <input id="signin-password" type="password" placeholder="Enter your password"></input>
                 <div class="spacer-0"></div>
-                <button type="submit">Sign In</button>
+                <button type="submit" style="line-height: 5px;">Sign In</button>
                 <div id="signin-message" class="warning center"></div>
                 <div class="spacer-grow"></div>
             </form>
@@ -48,7 +48,7 @@
                 <input id="register-password" type="password" placeholder="Enter your password"></input>
                 <input id="register-confirm" type="password" placeholder="Enter your password again"></input>
                 <div class="spacer-0"></div>
-                <button type="submit">Register</button>
+                <button type="submit" style="line-height: 5px;">Register</button>
                 <div id="register-message" class="warning center"></div>
             </form>
         </div>
@@ -57,35 +57,35 @@
     <div id="waiting-room" class="overlay row">
         <div class="content shadow row">
             <div id="waiting-info-area" class="col">
-                <div style="font-size: 48px; font-weight: bold; margin-left: 195px;">WAITING ROOM</div>
+                <div style="font-size: 48px; font-weight: bold; ">WAITING ROOM</div>
                 <div id="game-rules" style="font-size: 20px;">
-                    <strong>Game Rules:</strong><br><br>
-                    1. Each player starts with one general <strong>(your most important tile)</strong> and a few troops on the board.<br>
-                    2. Command your army to move by <strong>(w,a,s,d) and (mouse-click)</strong> and capture other tiles. <br>
+                    <br><strong>Game Instructions:</strong><br><br>
+                    1. Each player starts with a <strong>GENERAL</strong><br>
+                    2. Command your army to move by <strong>(W,A,S,D) and (mouse-click)</strong> <br>
                     3. To capture a tile, the tile you're moving from must have more troops than the tile you're moving to.<br>
                     4. Each tile you occupy increases your army by 1 every turn.<br>
-                    5. Cities and captured generals become part of your territory and produce extra troops for you every turn.<br>
-                    6. You can only see the tiles that your army has visited.<br>
-                    7. To win the game, you need to find and capture your opponents' generals and occupy as much of the tiles as possible.
+                    5. <strong>CITIES</strong> and captured <strong>GENERALS</strong> become part of your territory and produce <strong>EXTRA TROOPS</strong> for you every turn.<br>
+                    6. You can only see the surrounding tiles your army has visited.<br>
+                    7. To win the game, you need to <strong>find and capture your opponents' generals</strong>.
                 </div>
                 <div class="spacer-8"></div>
-                                <div class="row"> <!-- Added this wrapper -->
-                    <div id="count-time" class="col counting" style="margin-right: 50px;">
-                        <div class="caption">COUNT DOWN</div>
-                        <div id="timeleft" class="caption">15s</div>
-                    </div>
-                    <div id="count-user" class="col counting">
-                        <div class="caption">NUMBER OF PLAYER</div>
-                        <div id="readyusercount" class="caption">0</div>
-                    </div>
-                </div> <!-- End of wrapper -->
-                <div class="spacer-8"></div>
-                <button id="get-ready" style="line-height: 3px;">I'm Ready!</button>
-                <button id="waiting-sign-out" style="line-height: 3px; font-size: 20px; padding: 25px 40px;">Sign out</button>
+                                <button id="get-ready" style="line-height: 3px; font-size: 30px; width: 80%; border-radius: 10px;">I'm Ready!</button>
+                <button id="waiting-sign-out" style="line-height: 3px; width: 50%; padding: 15px 10px; border-radius: 10px; margin-top: 15px;">Exit</button>
             </div>
-            <div id="ready-users-area" class="col">
+            <div class="col"> <!-- Added this wrapper -->
+                <div id="ready-users-area" class="col" style="position: relative;">
                 <div class="caption">Ready Users</div>
             </div>
+<div id="count-user" class="col counting" style="width: 100%;">
+                    <div class="caption" style="font-size: 20px;">NUMBER OF PLAYER</div>
+                    <div id="readyusercount" class="caption" style="font-size: 20px;">0</div>
+                </div>
+                <div id="count-time" class="col counting" style="margin-right: 50px; width: 100%;">
+                    <div class="caption" style="font-size: 20px;">COUNT DOWN</div>
+                    <div id="timeleft" class="caption" style="font-size: 20px;">15s</div>
+                </div>
+
+            </div> <!-- End of wrapper -->
         </div>
     </div>
 
@@ -94,7 +94,7 @@
         <div class="centered-content">
             <h1 id="game-over-text">Game Over</h1>
             <table id="final-ranking"></table>
-            <button id="replay-button">Play Again</button>
+            <button id="replay-button" style="line-height: 3px;">Play Again</button>
         </div>
     </div>
 
